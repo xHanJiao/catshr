@@ -1,7 +1,7 @@
 package com.xhan.catshare.controller;
 
 
-import com.xhan.catshare.entity.dao.UserDO;
+import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.exception.RegisterException;
 import com.xhan.catshare.service.UserManagerHelper;

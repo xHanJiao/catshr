@@ -1,6 +1,6 @@
 package com.xhan.catshare.repository;
 
-import com.xhan.catshare.entity.dao.UserDO;
+import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.projection.CredentialPair;
 import com.xhan.catshare.entity.projection.UserId;
 import org.springframework.data.jpa.repository.JpaRepository;

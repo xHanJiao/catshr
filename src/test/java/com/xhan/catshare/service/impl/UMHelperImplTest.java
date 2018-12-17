@@ -1,6 +1,6 @@
 package com.xhan.catshare.service.impl;
 
-import com.xhan.catshare.entity.dao.UserDO;
+import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.entity.generator.UserGenerator;

@@ -1,4 +1,4 @@
-package com.xhan.catshare.entity.dao;
+package com.xhan.catshare.entity.dao.user;
 
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.entity.dto.UserInfoDTO;

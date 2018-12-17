@@ -1,6 +1,6 @@
 package com.xhan.catshare.controller;
 
-import com.xhan.catshare.entity.dao.UserDO;
+import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.service.UserManagerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;

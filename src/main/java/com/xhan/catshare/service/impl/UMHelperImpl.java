@@ -1,6 +1,6 @@
 package com.xhan.catshare.service.impl;
 
-import com.xhan.catshare.entity.dao.UserDO;
+import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.entity.projection.CredentialPair;
@@ -20,7 +20,7 @@ import java.util.Optional;
 import static com.xhan.catshare.controller.ControllerConstant.checkSubject;
 import static com.xhan.catshare.controller.ControllerConstant.checkText;
 import static com.xhan.catshare.controller.ControllerConstant.mailHost;
-import static com.xhan.catshare.entity.dao.UserDO.buildUncheckedUser;
+import static com.xhan.catshare.entity.dao.user.UserDO.buildUncheckedUser;
 import static com.xhan.catshare.exception.LoginException.NOACCOUNT;
 import static com.xhan.catshare.exception.RegisterException.*;
 

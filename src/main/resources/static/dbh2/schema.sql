@@ -7,10 +7,22 @@ CREATE TABLE `user` (
   check_state BOOLEAN NOT NULL ,
   register_date DATE NOT NULL
 );
-CREATE TABLE `friendship`(
-  `friendship_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+CREATE TABLE `current_relation` (
+  `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `raiser_id` INTEGER NOT NULL ,
+  `acceptor_id` INTEGER NOT NULL
+);
+CREATE TABLE `delete_record`(
+  `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
   `raiser_id` INTEGER NOT NULL ,
   `acceptor_id` INTEGER NOT NULL ,
-  `accepted` BOOLEAN NOT NULL ,
-  `raise_date` DATE NOT NULL ,
+  `raise_time` DATETIME NOT NULL ,
+);
+CREATE TABLE `raise_record`(
+  `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `raiser_id` INTEGER NOT NULL ,
+  `acceptor_id` INTEGER NOT NULL ,
+  `raise_time` DATETIME NOT NULL ,
+  `accept_time` DATETIME NOT NULL ,
+  `current_state` VARCHAR(10) NOT NULL DEFAULT 'not accept'
 );
