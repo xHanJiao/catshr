@@ -1,12 +1,11 @@
 package com.xhan.catshare.repository;
 
-import com.xhan.catshare.entity.UserDO;
+import com.xhan.catshare.entity.dao.UserDO;
 import com.xhan.catshare.entity.projection.CredentialPair;
 import com.xhan.catshare.entity.projection.UserId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import javax.validation.constraints.Size;
 import java.util.Optional;
 
 @Repository

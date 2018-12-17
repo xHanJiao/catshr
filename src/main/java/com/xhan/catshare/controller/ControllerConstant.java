@@ -12,4 +12,8 @@ public class ControllerConstant {
     public final static String centerURL = slash + centerPage;
     public final static String checkPage = "check";
     public final static String checkURL = slash + checkPage;
+    public final static String mailHost = "3195573606@qq.com";
+    public final static String checkSubject = "check your email for catshare";
+    public final static String checkText = "please click the URL ";
+    public final static String friendURL = slash + "friend";
 }

@@ -1,9 +1,8 @@
 package com.xhan.catshare.entity.generator;
 
-import com.xhan.catshare.entity.UserDO;
+import com.xhan.catshare.entity.dao.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
-import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.stream.Stream;

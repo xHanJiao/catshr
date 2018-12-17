@@ -1,6 +1,6 @@
 package com.xhan.catshare.service.impl;
 
-import com.xhan.catshare.entity.UserDO;
+import com.xhan.catshare.entity.dao.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.entity.generator.UserGenerator;
@@ -13,7 +13,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.io.UnsupportedEncodingException;
 
 import static com.xhan.catshare.entity.generator.UserGenerator.geneLDTO;
 import static com.xhan.catshare.entity.generator.UserGenerator.geneRDTOFromString;
@@ -22,6 +26,8 @@ import static org.junit.Assert.*;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 public class UMHelperImplTest {
+
+    @Autowired private JavaMailSender sender;
 
     @Autowired private UserRepository repo;
 
@@ -36,10 +42,6 @@ public class UMHelperImplTest {
     @After
     public void clear(){
         repo.deleteAll();
-    }
-
-    @Test
-    public void generateCheckURL() {
     }
 
     @Test
@@ -111,5 +113,17 @@ public class UMHelperImplTest {
         Integer i = helper.getUserDOId(name);
         assertNotNull(i);
         System.out.println(i);
+    }
+
+    @Test
+    public void sendEmail() throws UnsupportedEncodingException {
+        RegisterDTO dto = UserGenerator.geneRDTOFromString("xhan");
+        UserDO userDO = UserDO.buildUncheckedUser(dto);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("3195573606@qq.com");
+        message.setTo("623068955@qq.com");
+        message.setSubject("test sending message");
+        message.setText("hello there" + userDO.getURL());
+        sender.send(message);
     }
 }

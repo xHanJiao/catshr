@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import static com.xhan.catshare.controller.ControllerConstant.*;
+import static com.xhan.catshare.exception.LoginException.ERRORINPUT;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -35,7 +36,7 @@ public class LoginController {
                         BindingResult result,
                         HttpSession session){
         if(result.hasErrors() || !helper.checkLoginDTO(dto)){
-            throw new LoginException("error input");
+            throw new LoginException(ERRORINPUT);
         }
         else session.setAttribute("userId", helper.getUserDOId(dto.getAccount()));
         return centerPage;

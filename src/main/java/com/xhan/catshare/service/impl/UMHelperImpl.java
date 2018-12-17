@@ -1,44 +1,47 @@
 package com.xhan.catshare.service.impl;
 
-import com.xhan.catshare.entity.UncheckedUserDO;
-import com.xhan.catshare.entity.UserDO;
+import com.xhan.catshare.entity.dao.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
-import com.xhan.catshare.entity.dto.UserInfoDTO;
 import com.xhan.catshare.entity.projection.CredentialPair;
 import com.xhan.catshare.exception.LoginException;
 import com.xhan.catshare.exception.RegisterException;
-import com.xhan.catshare.repository.UnUserRepository;
 import com.xhan.catshare.repository.UserRepository;
 import com.xhan.catshare.service.UserManagerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
-import static com.xhan.catshare.exception.RegisterException.ERRORINPUT;
-import static com.xhan.catshare.exception.RegisterException.SAMEACCOUNT;
+import static com.xhan.catshare.controller.ControllerConstant.checkSubject;
+import static com.xhan.catshare.controller.ControllerConstant.checkText;
+import static com.xhan.catshare.controller.ControllerConstant.mailHost;
+import static com.xhan.catshare.entity.dao.UserDO.buildUncheckedUser;
+import static com.xhan.catshare.exception.LoginException.NOACCOUNT;
+import static com.xhan.catshare.exception.RegisterException.*;
 
 
 @Service
 public class UMHelperImpl implements UserManagerHelper{
 
     private final UserRepository repo;
-    private final UnUserRepository urepo;
+    private final JavaMailSender sender;
 
     @Autowired
-    public UMHelperImpl(UserRepository userRepository, UnUserRepository urepo) {
+    public UMHelperImpl(UserRepository userRepository, JavaMailSender sender) {
         this.repo = userRepository;
-        this.urepo = urepo;
+        this.sender = sender;
     }
 
     @Override
     @Transactional
     public UserDO saveUser(RegisterDTO dto) {
         checkRegisterDTO(dto);
-        //fixme still don't know what happened when there is already a user
-        return repo.save(UserDO.build(dto));
+        return repo.save(buildUncheckedUser(dto));
     }
 
     @Override
@@ -55,36 +58,40 @@ public class UMHelperImpl implements UserManagerHelper{
             throw new RegisterException(ERRORINPUT);
         if (repo.findIdByAccount(dto.getAccount()).isPresent())
             throw new RegisterException(SAMEACCOUNT);
-        //fixme 把错误信息弄成常量 
-		//fixme 还有关于email和username的unique约束
     }
 
     @Override
     public Integer getUserDOId(String account) {
         return repo.findIdByAccount(account)
-                .orElseThrow(()-> new LoginException("no account"))
+                .orElseThrow(()-> new LoginException(NOACCOUNT))
                 .getId();
     }
 
     @Override
-    @Transactional
-    public UncheckedUserDO saveUncheckedUser(UncheckedUserDO userDO) {
-        if(repo.findIdByAccount(userDO.getAccount()).isPresent() ||
-                urepo.findByAccount(userDO.getAccount()).isPresent())
-            throw new RegisterException(SAMEACCOUNT);
-
-        return urepo.save(userDO);
+    public void sendEmail(UserDO user) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom(mailHost);
+        message.setTo(user.getEmail());
+        message.setSubject(checkSubject);
+        try {
+            message.setText(checkText + user.getURL());
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+            throw new RegisterException(CANNOTSENDMAIL);
+        }
+        sender.send(message);
     }
 
     @Override
-    public void sendEmail(UncheckedUserDO user) {
-
+    public UserDO findUserByAccount(String account) {
+        return repo.findByAccount(account)
+                .orElseThrow(()->new RegisterException(NOACCOUNT));
     }
 
     @Override
-    public UncheckedUserDO findUnUserDO(String account) {
-        return urepo.findByAccount(account)
-                .orElseThrow(() -> new RegisterException(ERRORINPUT));
+    public UserDO findUserById(Integer userId) {
+        return repo.findById(userId)
+                .orElseThrow(() -> new RegisterException(NOID));
     }
 
 }

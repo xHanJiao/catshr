@@ -1,7 +1,7 @@
 package com.xhan.catshare.controller;
 
 
-import com.xhan.catshare.entity.UncheckedUserDO;
+import com.xhan.catshare.entity.dao.UserDO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.exception.RegisterException;
 import com.xhan.catshare.service.UserManagerHelper;
@@ -39,19 +39,20 @@ public class RegisterController {
         if(result.hasErrors())
             throw new RegisterException(ERRORINPUT);
 
-        UncheckedUserDO user = helper.saveUncheckedUser(UncheckedUserDO.build(dto));
+        UserDO user = helper.saveUser(dto);
+
         helper.sendEmail(user);
 
         return checkPage;
     }
 
-    @RequestMapping(value = registerURL, method = RequestMethod.GET, params = {"check", "account"})
+    @RequestMapping(value = registerURL, method = RequestMethod.GET, params = {checkPage, "account"})
     public String checkRegister(@RequestParam String check,
                                 @RequestParam String account,
                                 RedirectAttributes model){
-        UncheckedUserDO unchecked = helper.findUnUserDO(account);
+        UserDO user = helper.findUserByAccount(account);
         model.addFlashAttribute("checkResult",
-                unchecked.getIdentifier().equals(check));
+                user.getIdentifier().equals(check));
         return redirectPrefix+checkURL;
     }
 

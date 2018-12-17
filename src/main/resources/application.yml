@@ -12,3 +12,9 @@ spring:
       ddl-auto: validate
   thymeleaf:
     cache: false
+  mail:
+    host: smtp.qq.com
+    username: 3195573606@qq.com
+    password: xpkfvaatkersdheb
+    properties: {mail.smtp.auth: true,smtp.starttls.enable: true,smtp.starttls.required: true}
+    port: 587

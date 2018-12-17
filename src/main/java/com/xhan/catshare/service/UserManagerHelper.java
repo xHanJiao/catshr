@@ -1,13 +1,8 @@
 package com.xhan.catshare.service;
 
-import com.xhan.catshare.entity.UncheckedUserDO;
-import com.xhan.catshare.entity.UserDO;
+import com.xhan.catshare.entity.dao.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
-import com.xhan.catshare.entity.dto.UserInfoDTO;
-import org.springframework.stereotype.Service;
-
-import javax.validation.Valid;
 
 public interface UserManagerHelper {
 
@@ -19,9 +14,9 @@ public interface UserManagerHelper {
 
     Integer getUserDOId(String account);
 
-    UncheckedUserDO saveUncheckedUser(UncheckedUserDO userDO);
+    void sendEmail(UserDO userDO);
 
-    void sendEmail(UncheckedUserDO user);
+    UserDO findUserByAccount(String account);
 
-    UncheckedUserDO findUnUserDO(String account);
+    UserDO findUserById(Integer userId);
 }

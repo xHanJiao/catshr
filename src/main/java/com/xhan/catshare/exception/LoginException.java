@@ -1,6 +1,10 @@
 package com.xhan.catshare.exception;
 
 public class LoginException extends RuntimeException{
+
+    public static final String ERRORINPUT = "error input";
+    public static final String NOACCOUNT = "no account";
+
     public LoginException() {
     }
 
