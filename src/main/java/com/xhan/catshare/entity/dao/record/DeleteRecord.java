@@ -2,20 +2,25 @@ package com.xhan.catshare.entity.dao.record;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import javax.persistence.*;
 import java.util.Date;
 
-@Getter @Setter
+@Data
 @NoArgsConstructor
 @Entity(name = "delete_record")
-@EqualsAndHashCode(callSuper = true, exclude = "raiseTime")
-public class DeleteRecord extends CurrentRelation{
+@EqualsAndHashCode(callSuper = false, of = "id")
+public class DeleteRecord extends Pair{
+
+    @Column(name = "relation_id", nullable = false)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "raise_time", nullable = false)
     private Date raiseTime;
 
+    public DeleteRecord(Integer acceptorId, Integer raiserId) {
+        super(raiserId, acceptorId);
+        setRaiseTime(new Date());
+    }
 }

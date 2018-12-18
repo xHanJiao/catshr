@@ -19,4 +19,5 @@ public interface UserManagerHelper {
     UserDO findUserByAccount(String account);
 
     UserDO findUserById(Integer userId);
+
 }

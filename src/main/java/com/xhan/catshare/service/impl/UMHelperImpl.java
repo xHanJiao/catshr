@@ -4,8 +4,9 @@ import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.entity.projection.CredentialPair;
-import com.xhan.catshare.exception.LoginException;
-import com.xhan.catshare.exception.RegisterException;
+import com.xhan.catshare.exception.loregi.LoginException;
+import com.xhan.catshare.exception.loregi.RegisterException;
+import com.xhan.catshare.exception.UserAccountException;
 import com.xhan.catshare.repository.UserRepository;
 import com.xhan.catshare.service.UserManagerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +22,8 @@ import static com.xhan.catshare.controller.ControllerConstant.checkSubject;
 import static com.xhan.catshare.controller.ControllerConstant.checkText;
 import static com.xhan.catshare.controller.ControllerConstant.mailHost;
 import static com.xhan.catshare.entity.dao.user.UserDO.buildUncheckedUser;
-import static com.xhan.catshare.exception.LoginException.NOACCOUNT;
-import static com.xhan.catshare.exception.RegisterException.*;
+import static com.xhan.catshare.exception.loregi.LoginException.NOACCOUNT;
+import static com.xhan.catshare.exception.loregi.RegisterException.*;
 
 
 @Service

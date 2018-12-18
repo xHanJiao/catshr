@@ -1,7 +1,7 @@
 package com.xhan.catshare.controller;
 
 import com.xhan.catshare.entity.dto.LoginDTO;
-import com.xhan.catshare.exception.LoginException;
+import com.xhan.catshare.exception.loregi.LoginException;
 import com.xhan.catshare.service.UserManagerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,7 +12,7 @@ import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import static com.xhan.catshare.controller.ControllerConstant.*;
-import static com.xhan.catshare.exception.LoginException.ERRORINPUT;
+import static com.xhan.catshare.exception.loregi.LoginException.ERRORINPUT;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 

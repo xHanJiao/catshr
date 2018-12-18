@@ -1,4 +1,4 @@
-package com.xhan.catshare.exception;
+package com.xhan.catshare.exception.loregi;
 
 public class RegisterException extends RuntimeException{
 

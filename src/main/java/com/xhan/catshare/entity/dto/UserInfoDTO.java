@@ -13,7 +13,6 @@ import static javax.persistence.InheritanceType.TABLE_PER_CLASS;
 import static javax.persistence.TemporalType.DATE;
 
 @Data
-@EqualsAndHashCode(of = "id")
 @MappedSuperclass
 public class UserInfoDTO {
 
