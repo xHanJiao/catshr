@@ -3,6 +3,8 @@ package com.xhan.catshare.service.impl;
 import com.xhan.catshare.entity.dao.record.CurrentRelation;
 import com.xhan.catshare.entity.dao.record.DeleteRecord;
 import com.xhan.catshare.entity.dao.record.RaiseRecord;
+import com.xhan.catshare.entity.dao.user.UserDO;
+import com.xhan.catshare.entity.dto.AccountNamePair;
 import com.xhan.catshare.exception.records.*;
 import com.xhan.catshare.repository.UserRepository;
 import com.xhan.catshare.repository.record.CurrentRecordRepository;
@@ -13,11 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.ABORT;
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.ACCEPT;
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.WAIT;
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class RelativeHelperImpl extends RelativeHelper{
@@ -171,5 +175,61 @@ public class RelativeHelperImpl extends RelativeHelper{
                 .findByRaiserIdAndAcceptorId(raiserId, acceptorId)
                 .isPresent())
         throw new CurrentRelationNotExistException();
+    }
+
+    @Override
+    public List<AccountNamePair> fromIdGetWaitingRecords(Integer userId) {
+        return raiseRepository
+                 .findByAcceptorIdAndCurrentState(userId, RaiseRecord.WAIT)
+                 .stream()
+                 .map(this::build)
+                 .collect(toList());
+    }
+
+    @Override
+    public List<AccountNamePair> fromIdGetCurrentFriend(Integer userId) {
+        List<AccountNamePair> forRaiser = currRepository
+                .findByRaiserId(userId)
+                .stream()
+                .map(this::buildForRaiser)
+                .collect(toList());
+
+        List<AccountNamePair> forAcceptor = currRepository
+                .findByAcceptorId(userId)
+                .stream()
+                .map(this::buildForAcceptor)
+                .collect(toList());
+        forAcceptor.addAll(forRaiser);
+        return forAcceptor;
+    }
+
+    private AccountNamePair buildForAcceptor(CurrentRelation cr){
+        UserDO raiser = userRepository
+                .findById(cr.getRaiserId())
+                .orElseThrow(IdNotFoundException::new);
+
+        return new AccountNamePair(
+                raiser.getAccount(),
+                raiser.getUsername());
+    }
+
+    private AccountNamePair buildForRaiser(CurrentRelation cr){
+        UserDO raiser = userRepository
+                .findById(cr.getAcceptorId())
+                .orElseThrow(IdNotFoundException::new);
+
+        return new AccountNamePair(
+                raiser.getAccount(),
+                raiser.getUsername());
+    }
+
+    private AccountNamePair build(RaiseRecord record){
+        UserDO raiser = userRepository
+                .findById(record.getRaiserId())
+                .orElseThrow(IdNotFoundException::new);
+
+        return new AccountNamePair(
+                raiser.getAccount(),
+                raiser.getUsername());
     }
 }

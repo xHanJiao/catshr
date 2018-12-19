@@ -6,6 +6,7 @@ import com.xhan.catshare.entity.generator.UserGenerator;
 import com.xhan.catshare.exception.records.AccountNotFoundException;
 import com.xhan.catshare.repository.UserRepository;
 import com.xhan.catshare.repository.record.CurrentRecordRepository;
+import com.xhan.catshare.repository.record.DeleteRecordRepository;
 import com.xhan.catshare.repository.record.RaiseRecordRepository;
 import lombok.Data;
 import org.junit.After;
@@ -16,11 +17,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
+
+import javax.persistence.Id;
+
 import static com.xhan.catshare.controller.ControllerConstant.friendURL;
 import static com.xhan.catshare.entity.generator.UserGenerator.names;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -30,12 +37,13 @@ public class RelativeControllerTest {
     @Autowired private WebApplicationContext env;
     @Autowired private RaiseRecordRepository rrRepo;
     @Autowired private CurrentRecordRepository crRepo;
+    @Autowired private DeleteRecordRepository drRepo;
     @Autowired private UserRepository repo;
 
     private MockMvc mvc;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mvc = MockMvcBuilders
                 .webAppContextSetup(env)
                 .build();
@@ -48,8 +56,11 @@ public class RelativeControllerTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         repo.deleteAll();
+        rrRepo.deleteAll();
+        drRepo.deleteAll();
+        crRepo.deleteAll();
     }
 
     /**
@@ -59,6 +70,7 @@ public class RelativeControllerTest {
      * 要测试成功情况。
      */
     @Test
+    @Transactional
     public void addFriend() throws Exception {
         // 0 is raiser and 1 is acceptor
         addRaiseRecord(db(names[0]), db(names[1]));
@@ -87,12 +99,67 @@ public class RelativeControllerTest {
         ).andExpect(status().isOk());
     }
 
+    /**
+     * 确认添加好友的测试，测试一种正常情况
+     * 和两种错误情况（已经是好友和没有这条
+     * 记录）这两种情况。
+     */
     @Test
-    public void confirm() {
+    public void confirm() throws Exception {
+        IdPair ip = getIdPair(db(names[0]), db(names[1]));
+        IdPair ip2 = getIdPair(db(names[2]), db(names[3]));
+        IdPair ip3 = getIdPair(db(names[0]), db(names[2]));
+        CurrentRelation cr = new CurrentRelation(ip2.rid, ip2.aid);
+        RaiseRecord rr = new RaiseRecord(ip3.rid, ip3.aid);
+        crRepo.save(cr);
+        rrRepo.save(rr);
+
+        // no raiseRecord
+        mvc.perform(post(friendURL)
+                        .param("accept", db(names[1]))
+                        .sessionAttr("userId", ip.rid))
+                .andExpect(status().isBadRequest());
+
+        // already is friend
+        mvc.perform(post(friendURL)
+                        .param("accept", db(names[3]))
+                        .sessionAttr("userId", ip2.rid))
+                .andExpect(status().isBadRequest());
+
+        // correct
+        mvc.perform(post(friendURL)
+                        .param("accept", db(names[2]))
+                        .sessionAttr("userId", ip3.rid))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
+    /**
+     * 对删除好友的测试，需要测试两种情况：
+     * 正常情况和不是好友的情况。
+     */
     @Test
-    public void deleteFriend() {
+    public void deleteFriend() throws Exception {
+        IdPair ip = getIdPair(db(names[0]), db(names[1]));
+        IdPair ip2 = getIdPair(db(names[2]), db(names[3]));
+
+        CurrentRelation cr = new CurrentRelation(ip.rid, ip.aid);
+        crRepo.save(cr);
+
+        // not friend yet
+        mvc.perform(post(friendURL)
+                .param("delete", db(names[2]))
+                .sessionAttr("userId", ip2.aid))
+                .andExpect(status().isBadRequest())
+                .andDo(print());
+
+        // correct
+        mvc.perform(post(friendURL)
+                .param("delete", db(names[1]))
+                .sessionAttr("userId", ip.rid))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
     }
 
     @Test

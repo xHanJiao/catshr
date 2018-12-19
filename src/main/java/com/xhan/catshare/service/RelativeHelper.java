@@ -1,6 +1,7 @@
 package com.xhan.catshare.service;
 
 import com.xhan.catshare.entity.dao.record.RaiseRecord;
+import com.xhan.catshare.entity.dto.AccountNamePair;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -110,4 +111,14 @@ public abstract class RelativeHelper {
      * @param raiserId 发起者的id，来自Session
      */
     protected abstract void checkBeforeDelete(Integer acceptorId, Integer raiserId);
+
+    /**
+     * 得到所有申请加好友的申请人，要得到他们的用户名
+     * 和账号（现在还没实现头像）
+     * @param userId 当前用户（接受者）的id
+     * @return 返回一个RaiseRecordDTO列表
+     */
+    public abstract List<AccountNamePair> fromIdGetWaitingRecords(Integer userId);
+
+    public abstract List<AccountNamePair> fromIdGetCurrentFriend(Integer userId);
 }

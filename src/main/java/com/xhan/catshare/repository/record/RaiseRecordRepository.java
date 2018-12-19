@@ -17,6 +17,8 @@ public interface RaiseRecordRepository extends JpaRepository<RaiseRecord, Intege
                                                                      String state);
 
     List<RaiseRecord> findByCurrentStateAndRaiseTimeBefore(String state, Date raiseTime);
+
+    List<RaiseRecord> findByAcceptorIdAndCurrentState(Integer acceptorId, String state);
 //    @Modifying
 //    @Query("update RaiseRecord r set r.currentState=?2 where r.id=?1")
 //    int setSignal(Integer recordId, String signal);

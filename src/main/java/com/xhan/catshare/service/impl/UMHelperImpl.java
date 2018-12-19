@@ -95,4 +95,9 @@ public class UMHelperImpl implements UserManagerHelper{
                 .orElseThrow(() -> new RegisterException(NOID));
     }
 
+    @Override
+    public UserDO saveUser(UserDO user) {
+        return repo.save(user);
+    }
+
 }

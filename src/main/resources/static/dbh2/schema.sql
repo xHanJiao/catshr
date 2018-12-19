@@ -16,13 +16,20 @@ CREATE TABLE `delete_record`(
   `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
   `raiser_id` INTEGER NOT NULL ,
   `acceptor_id` INTEGER NOT NULL ,
-  `raise_time` TIMESTAMP NOT NULL ,
+  `raise_time` DATETIME NOT NULL ,
 );
 CREATE TABLE `raise_record`(
   `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
   `raiser_id` INTEGER NOT NULL ,
   `acceptor_id` INTEGER NOT NULL ,
-  `raise_time` TIMESTAMP NOT NULL ,
-  `accept_time` TIMESTAMP ,
+  `raise_time` DATETIME NOT NULL ,
+  `accept_time` DATETIME ,
   `current_state` CHAR(4) NOT NULL DEFAULT 'wait'
+);
+CREATE TABLE `message`(
+  `record_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `user_id` INTEGER NOT NULL ,
+  `raise_time` DATETIME NOT NULL ,
+  `content` VARCHAR(140) NOT NULL ,
+  `DTYPE` CHAR(1)
 );

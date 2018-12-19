@@ -20,4 +20,5 @@ public interface UserManagerHelper {
 
     UserDO findUserById(Integer userId);
 
+    UserDO saveUser(UserDO user);
 }

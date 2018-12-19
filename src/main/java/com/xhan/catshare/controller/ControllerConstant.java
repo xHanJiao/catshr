@@ -16,4 +16,6 @@ public class ControllerConstant {
     public final static String checkSubject = "check your email for catshare";
     public final static String checkText = "please click the URL ";
     public final static String friendURL = slash + "friend";
+    public final static String waitingRaiseURL = friendURL + "wait";
+    public static final String currentRecordURL = friendURL + "now";
 }

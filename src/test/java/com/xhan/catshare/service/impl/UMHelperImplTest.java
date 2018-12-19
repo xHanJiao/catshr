@@ -46,11 +46,13 @@ public class UMHelperImplTest {
 
     @Test
     public void saveUser() {
+
         int count = 0;
         RegisterDTO normal = geneRDTOFromString("test");
         UserDO testDO = helper.saveUser(normal);
         assertNotNull(testDO);
         count += 1;
+
         RegisterDTO same = geneRDTOFromString("xhan");
         try {
             helper.saveUser(same);

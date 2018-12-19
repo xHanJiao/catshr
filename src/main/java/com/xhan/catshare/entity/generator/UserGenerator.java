@@ -31,12 +31,14 @@ public class UserGenerator {
         if(twolen<7 || twolen>14)
             throw new IllegalArgumentException("account");
 
-        return new UserDO(
+        UserDO user = new UserDO(
                 two,
                 one,
                 two,
                 one+ emailSuffix
         );
+        user.setChecked(true);
+        return user;
     }
 
     public static RegisterDTO geneRDTOFromString(String one){

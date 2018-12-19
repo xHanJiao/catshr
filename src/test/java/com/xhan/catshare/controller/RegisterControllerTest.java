@@ -37,10 +37,7 @@ public class RegisterControllerTest {
 
     @Test
     public void register() throws Exception {
-        mvc.perform(get(registerURL))
-                .andExpect(model().hasNoErrors())
-                .andExpect(view().name("register"))
-                .andExpect(status().isOk());
+
 
     }
 
