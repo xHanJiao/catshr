@@ -20,4 +20,12 @@ public class CurrentRelation extends Pair {
         this.setAcceptorId(acceptorId);
         this.setRaiserId(raiserId);
     }
+
+    @Override
+    public String toString() {
+        return "CurrentRelation{ raiserId:"+
+                getRaiserId()+
+                " acceptorId:"+
+                getAcceptorId() + "}";
+    }
 }

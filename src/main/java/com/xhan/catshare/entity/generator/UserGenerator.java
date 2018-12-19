@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class UserGenerator {
-    public static final String[] names = {"xhan", "xlee", "xchang", "xzhang"};
+    public static final String[] names = {"xhan", "xlee", "xchang", "xzhang", "xyan", "xhuu", "xmma"};
 
     private static String emailSuffix = "@123.com";
 

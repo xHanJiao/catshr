@@ -24,8 +24,15 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.persistence.Id;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import static com.xhan.catshare.controller.ControllerConstant.currentRecordURL;
 import static com.xhan.catshare.controller.ControllerConstant.friendURL;
 import static com.xhan.catshare.entity.generator.UserGenerator.names;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -159,6 +166,45 @@ public class RelativeControllerTest {
                 .sessionAttr("userId", ip.rid))
                 .andExpect(status().isNoContent())
                 .andDo(print());
+
+    }
+
+    /**
+     * 在这里要测试能不能正常获得所有的好友关系
+     * 要添加某特定用户作为发起者和接受者的关系
+     * 看看能不能把它们都收集到
+     */
+    @Test
+    public void getCurrentRelations() throws Exception {
+        popularCurrentRelations();
+        IdPair allZero = getIdPair(db(names[0]), db(names[0]));
+
+        mvc.perform(
+                get(currentRecordURL)
+                        .sessionAttr("userId", allZero.rid))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    private void popularCurrentRelations() {
+        List<CurrentRelation> asRaiser= Arrays.stream(names)
+                .skip(1).limit(3)
+                .map(s -> getIdPair(db(names[0]), db(s)))
+                .map(p -> new CurrentRelation(p.rid, p.aid))
+                .collect(toList());
+        assert asRaiser.size() > 0;
+        asRaiser.forEach(System.out::println);
+
+        List<CurrentRelation> asAcceptor= Arrays.stream(names)
+                .skip(4)
+                .map(s -> getIdPair(db(s), db(names[0])))
+                .map(p -> new CurrentRelation(p.rid, p.aid))
+                .collect(toList());
+        assert asAcceptor.size() > 0;
+        asAcceptor.forEach(System.out::println);
+
+        crRepo.saveAll(asAcceptor);
+        crRepo.saveAll(asRaiser);
 
     }
 
