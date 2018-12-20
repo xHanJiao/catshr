@@ -27,9 +27,10 @@ CREATE TABLE `raise_record`(
   `current_state` CHAR(4) NOT NULL DEFAULT 'wait'
 );
 CREATE TABLE `message`(
-  `record_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
-  `user_id` INTEGER NOT NULL ,
-  `raise_time` DATETIME NOT NULL ,
-  `content` VARCHAR(140) NOT NULL ,
-  `DTYPE` CHAR(1)
+  `message_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `owner_id` INTEGER NOT NULL ,
+  `send_time` DATETIME NOT NULL ,
+  `description` VARCHAR(140) NOT NULL ,
+  `MESSAGE_TYPE` CHAR(1) NOT NULL ,
+  `T_FILE_LOCATION` VARCHAR(255)
 );

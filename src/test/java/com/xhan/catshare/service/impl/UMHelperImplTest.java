@@ -5,7 +5,7 @@ import com.xhan.catshare.entity.dto.LoginDTO;
 import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.entity.generator.UserGenerator;
 import com.xhan.catshare.exception.loregi.RegisterException;
-import com.xhan.catshare.repository.UserRepository;
+import com.xhan.catshare.repository.user.UserRepository;
 import com.xhan.catshare.service.UserManagerHelper;
 import org.junit.After;
 import org.junit.Before;

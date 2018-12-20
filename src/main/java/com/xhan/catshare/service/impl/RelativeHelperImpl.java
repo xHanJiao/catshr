@@ -6,7 +6,7 @@ import com.xhan.catshare.entity.dao.record.RaiseRecord;
 import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.dto.AccountNamePair;
 import com.xhan.catshare.exception.records.*;
-import com.xhan.catshare.repository.UserRepository;
+import com.xhan.catshare.repository.user.UserRepository;
 import com.xhan.catshare.repository.record.CurrentRecordRepository;
 import com.xhan.catshare.repository.record.DeleteRecordRepository;
 import com.xhan.catshare.repository.record.RaiseRecordRepository;
@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
 import java.util.List;
 
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.ABORT;
@@ -47,17 +46,20 @@ public class RelativeHelperImpl extends RelativeHelper{
      * @param acceptorId 接受者的id
      * @param raiserId 发起者的id
      * @throws AlreadyExistRecordException: 已有未过期申请
+     * @throws CannotBeSameException: 不能自己请求自己
      * @throws AlreadyBeFriendException: 已经是好友
      */
     @Override
     protected void checkRaiseRecord(Integer acceptorId, Integer raiserId) {
+        if(acceptorId.equals(raiserId))
+            throw new CannotBeSameException();
+
         if(isFriend(acceptorId, raiserId))
             throw new AlreadyBeFriendException();
 
         if(raiseRepository.findByRaiserIdAndAcceptorIdAndCurrentState(
                 raiserId, acceptorId, WAIT).isPresent())
             throw new AlreadyExistRecordException();
-
     }
 
     /**
@@ -115,9 +117,13 @@ public class RelativeHelperImpl extends RelativeHelper{
      * @param raiserId 发起者id
      * @throws AlreadyBeFriendException: 已经是好友
      * @throws RaiseRecordNotExistException: 不存在请求记录
+     * @throws CannotBeSameException: 不能自己请求自己
      */
     @Override
     protected void checkRaiseRecordBeforeConfirm(Integer acceptorId, Integer raiserId) {
+        if(acceptorId.equals(raiserId))
+            throw new CannotBeSameException();
+
         if(isFriend(acceptorId, raiserId))
             throw new AlreadyBeFriendException();
 

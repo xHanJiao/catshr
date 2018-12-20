@@ -32,6 +32,18 @@ public class RaiseRecord extends Pair{
     @Column(name = "current_state", nullable = false, columnDefinition = "CHAR(4)")
     private String currentState;
 
+    @Override
+    public String toString() {
+        return "RaiseRecord{" +
+                "id=" + id +
+                ", raiserId=" + getRaiserId() +
+                ", acceptorId=" + getAcceptorId() +
+                ", acceptTime=" + acceptTime +
+                ", raiseTime=" + raiseTime +
+                ", currentState='" + currentState + '\'' +
+                '}';
+    }
+
     public RaiseRecord(Integer raiserId, Integer acceptorId) {
         super(raiserId, acceptorId);
         setRaiseTime(new Date());

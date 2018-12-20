@@ -1,4 +1,4 @@
-package com.xhan.catshare.repository;
+package com.xhan.catshare.repository.user;
 
 import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.projection.CredentialPair;

@@ -2,9 +2,10 @@ package com.xhan.catshare.controller;
 
 import com.xhan.catshare.entity.dao.record.CurrentRelation;
 import com.xhan.catshare.entity.dao.record.RaiseRecord;
+import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.generator.UserGenerator;
 import com.xhan.catshare.exception.records.AccountNotFoundException;
-import com.xhan.catshare.repository.UserRepository;
+import com.xhan.catshare.repository.user.UserRepository;
 import com.xhan.catshare.repository.record.CurrentRecordRepository;
 import com.xhan.catshare.repository.record.DeleteRecordRepository;
 import com.xhan.catshare.repository.record.RaiseRecordRepository;
@@ -17,16 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import javax.persistence.Id;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.IntStream;
+import java.time.Instant;
+import java.util.*;
 
 import static com.xhan.catshare.controller.ControllerConstant.currentRecordURL;
 import static com.xhan.catshare.controller.ControllerConstant.friendURL;
@@ -46,6 +43,9 @@ public class RelativeControllerTest {
     @Autowired private CurrentRecordRepository crRepo;
     @Autowired private DeleteRecordRepository drRepo;
     @Autowired private UserRepository repo;
+
+    private Map<Integer, List<RaiseRecord>> asRaiser = new HashMap<>();
+    private Map<Integer, List<RaiseRecord>> asAcceptor = new HashMap<>();
 
     private MockMvc mvc;
 
@@ -208,6 +208,16 @@ public class RelativeControllerTest {
 
     }
 
+    /**
+     * 在这个方法里测试了根据登陆者id获得
+     * 所有请求的Id的情况。
+     */
+    @Test
+    public void getRaiseRecord(){
+        new RecordGenerator().geneRecords();
+        assert rrRepo.findAll().size() > 0;
+    }
+
     @Test
     public void handleExceptions() {
     }
@@ -250,6 +260,54 @@ public class RelativeControllerTest {
         IdPair(int rid, int aid) {
             this.aid = aid;
             this.rid = rid;
+        }
+    }
+
+    @Test
+    public void RecordGeneratorTest(){
+        RecordGenerator gene = new RecordGenerator();
+        gene.geneRecords();
+        crRepo.findAll().forEach(System.out::println);
+        rrRepo.findAll().forEach(System.out::println);
+    }
+
+    private class RecordGenerator{
+        void geneRecords(){
+            // 如果反正都要得到全部的关系的话，不如直接遍历一遍
+            randomSaving(getAllId(), new Random(Instant.now().getEpochSecond()));
+
+        }
+
+        private void randomSaving(List<Integer> allId, Random sig) {
+            for (int i=0;i<allId.size();i++){
+                for (int j=i+1;j<allId.size();j++)
+                {
+                    if (sig.nextInt() % 2==0){
+                        // i as raiser
+                        if (sig.nextInt() % 2==0){
+                            rrRepo.save(new RaiseRecord(allId.get(i), allId.get(j)));
+                        }else {
+                            // save CurrentRelation
+                            crRepo.save(new CurrentRelation(allId.get(i), allId.get(j)));
+                        }
+                    }else {
+                        // i as acceptor
+                        if (sig.nextInt() % 2==0){
+                            // save raiseRecord
+                            rrRepo.save(new RaiseRecord(allId.get(j), allId.get(i)));
+                        }else {
+                            // save CurrentRelation
+                            crRepo.save(new CurrentRelation(allId.get(j), allId.get(i)));
+                        }
+                    }
+                }
+            }
+        }
+
+        private List<Integer> getAllId() {
+            return repo.findAll().stream()
+                    .map(UserDO::getId)
+                    .collect(toList());
         }
     }
 }

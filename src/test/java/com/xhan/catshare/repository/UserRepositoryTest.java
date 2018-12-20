@@ -1,6 +1,7 @@
 package com.xhan.catshare.repository;
 
 import com.xhan.catshare.entity.generator.UserGenerator;
+import com.xhan.catshare.repository.user.UserRepository;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
