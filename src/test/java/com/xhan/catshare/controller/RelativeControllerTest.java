@@ -1,8 +1,6 @@
 package com.xhan.catshare.controller;
 
-import com.xhan.catshare.entity.dao.record.CurrentRelation;
 import com.xhan.catshare.entity.dao.record.RaiseRecord;
-import com.xhan.catshare.entity.dao.user.UserDO;
 import com.xhan.catshare.entity.generator.UserGenerator;
 import com.xhan.catshare.exception.records.AccountNotFoundException;
 import com.xhan.catshare.repository.user.UserRepository;
@@ -22,13 +20,12 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.time.Instant;
 import java.util.*;
 
 import static com.xhan.catshare.controller.ControllerConstant.currentRecordURL;
 import static com.xhan.catshare.controller.ControllerConstant.friendURL;
+import static com.xhan.catshare.entity.dao.record.CurrentRelation.buildPair;
 import static com.xhan.catshare.entity.generator.UserGenerator.names;
-import static java.util.stream.Collectors.toList;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -44,8 +41,8 @@ public class RelativeControllerTest {
     @Autowired private DeleteRecordRepository drRepo;
     @Autowired private UserRepository repo;
 
-    private Map<Integer, List<RaiseRecord>> asRaiser = new HashMap<>();
-    private Map<Integer, List<RaiseRecord>> asAcceptor = new HashMap<>();
+//    private Map<Integer, List<RaiseRecord>> asRaiser = new HashMap<>();
+//    private Map<Integer, List<RaiseRecord>> asAcceptor = new HashMap<>();
 
     private MockMvc mvc;
 
@@ -80,19 +77,21 @@ public class RelativeControllerTest {
     @Transactional
     public void addFriend() throws Exception {
         // 0 is raiser and 1 is acceptor
+        // 构建 0 和 1 之间的未过期申请
         addRaiseRecord(db(names[0]), db(names[1]));
-        addFriendRecord(db(names[0]), db(names[2]));
+        // 构建 0 和 2 之前的好友关系
+        addFriendRecord(names[0], names[2]);
 
         int name0Id = repo.findIdByAccount(db(names[0]))
                 .orElseThrow(AccountNotFoundException::new)
                 .getId();
-        // error first
+        // 有未过期申请
         mvc.perform(
                 post(friendURL)
                         .param("acceptorAccount", db(names[1]))
                 .sessionAttr("userId", name0Id)
         ).andExpect(status().isBadRequest());
-        // error second
+        // 有好友关系
         mvc.perform(
                 post(friendURL)
                         .param("acceptorAccount", db(names[2]))
@@ -116,9 +115,12 @@ public class RelativeControllerTest {
         IdPair ip = getIdPair(db(names[0]), db(names[1]));
         IdPair ip2 = getIdPair(db(names[2]), db(names[3]));
         IdPair ip3 = getIdPair(db(names[0]), db(names[2]));
-        CurrentRelation cr = new CurrentRelation(ip2.rid, ip2.aid);
+
+        // 构建2 和 3 之间的好友关系
+        buildPair(ip2.rid, ip2.aid, db(names[2]),
+                names[2], db(names[3]), names[3])
+                .forEach(crRepo::save);
         RaiseRecord rr = new RaiseRecord(ip3.rid, ip3.aid);
-        crRepo.save(cr);
         rrRepo.save(rr);
 
         // no raiseRecord
@@ -150,8 +152,9 @@ public class RelativeControllerTest {
         IdPair ip = getIdPair(db(names[0]), db(names[1]));
         IdPair ip2 = getIdPair(db(names[2]), db(names[3]));
 
-        CurrentRelation cr = new CurrentRelation(ip.rid, ip.aid);
-        crRepo.save(cr);
+        buildPair(ip.rid, ip.aid, db(names[0]),
+                names[0], db(names[1]), names[1])
+                .forEach(crRepo::save);
 
         // not friend yet
         mvc.perform(post(friendURL)
@@ -187,47 +190,45 @@ public class RelativeControllerTest {
     }
 
     private void popularCurrentRelations() {
-        List<CurrentRelation> asRaiser= Arrays.stream(names)
+        Arrays.stream(names)
                 .skip(1).limit(3)
-                .map(s -> getIdPair(db(names[0]), db(s)))
-                .map(p -> new CurrentRelation(p.rid, p.aid))
-                .collect(toList());
-        assert asRaiser.size() > 0;
-        asRaiser.forEach(System.out::println);
-
-        List<CurrentRelation> asAcceptor= Arrays.stream(names)
-                .skip(4)
-                .map(s -> getIdPair(db(s), db(names[0])))
-                .map(p -> new CurrentRelation(p.rid, p.aid))
-                .collect(toList());
-        assert asAcceptor.size() > 0;
-        asAcceptor.forEach(System.out::println);
-
-        crRepo.saveAll(asAcceptor);
-        crRepo.saveAll(asRaiser);
-
+                .forEach(s -> {
+                    IdPair ip = getIdPair(db(names[0]), db(s));
+                    buildPair(ip.rid, ip.aid, db(names[0]), names[0], db(s), s)
+                            .forEach(cr -> {
+                                System.out.println(cr);
+                                crRepo.save(cr);
+                            });
+                });
     }
 
     /**
      * 在这个方法里测试了根据登陆者id获得
      * 所有请求的Id的情况。
      */
-    @Test
-    public void getRaiseRecord(){
-        new RecordGenerator().geneRecords();
-        assert rrRepo.findAll().size() > 0;
-    }
+//    @Test
+//    public void getRaiseRecord(){
+//        new RecordGenerator().geneRecords();
+//        assert rrRepo.findAll().size() > 0;
+//    }
 
     @Test
     public void handleExceptions() {
     }
 
-    private void addFriendRecord(String raiser, String acceptor){
-        IdPair p = getIdPair(raiser, acceptor);
+    /**
+     * 在这里传入两个名字，因为在后台构建测试数据时，
+     * 只是简单地将账户设置为名字+名字，所以只传入名
+     * 字便足够了
+     * @param rName 发起者的名字
+     * @param aName 接受者的名字
+     */
+    private void addFriendRecord(String rName, String aName){
+        IdPair p = getIdPair(db(rName), db(aName));
 
-        CurrentRelation curr = new CurrentRelation(p.getRid(), p.getAid());
-
-        crRepo.save(curr);
+        buildPair(p.rid, p.aid, db(rName),
+                rName, db(aName), aName)
+                .forEach(crRepo::save);
     }
 
     private void addRaiseRecord(String raiser, String acceptor) {
@@ -263,51 +264,51 @@ public class RelativeControllerTest {
         }
     }
 
-    @Test
-    public void RecordGeneratorTest(){
-        RecordGenerator gene = new RecordGenerator();
-        gene.geneRecords();
-        crRepo.findAll().forEach(System.out::println);
-        rrRepo.findAll().forEach(System.out::println);
-    }
+//    @Test
+//    public void RecordGeneratorTest(){
+//        RecordGenerator gene = new RecordGenerator();
+//        gene.geneRecords();
+//        crRepo.findAll().forEach(System.out::println);
+//        rrRepo.findAll().forEach(System.out::println);
+//    }
 
-    private class RecordGenerator{
-        void geneRecords(){
-            // 如果反正都要得到全部的关系的话，不如直接遍历一遍
-            randomSaving(getAllId(), new Random(Instant.now().getEpochSecond()));
-
-        }
-
-        private void randomSaving(List<Integer> allId, Random sig) {
-            for (int i=0;i<allId.size();i++){
-                for (int j=i+1;j<allId.size();j++)
-                {
-                    if (sig.nextInt() % 2==0){
-                        // i as raiser
-                        if (sig.nextInt() % 2==0){
-                            rrRepo.save(new RaiseRecord(allId.get(i), allId.get(j)));
-                        }else {
-                            // save CurrentRelation
-                            crRepo.save(new CurrentRelation(allId.get(i), allId.get(j)));
-                        }
-                    }else {
-                        // i as acceptor
-                        if (sig.nextInt() % 2==0){
-                            // save raiseRecord
-                            rrRepo.save(new RaiseRecord(allId.get(j), allId.get(i)));
-                        }else {
-                            // save CurrentRelation
-                            crRepo.save(new CurrentRelation(allId.get(j), allId.get(i)));
-                        }
-                    }
-                }
-            }
-        }
-
-        private List<Integer> getAllId() {
-            return repo.findAll().stream()
-                    .map(UserDO::getId)
-                    .collect(toList());
-        }
-    }
+//    private class RecordGenerator{
+//        void geneRecords(){
+//            // 如果反正都要得到全部的关系的话，不如直接遍历一遍
+//            randomSaving(getAllId(), new Random(Instant.now().getEpochSecond()));
+//
+//        }
+//
+//        private void randomSaving(List<Integer> allId, Random sig) {
+//            for (int i=0;i<allId.size();i++){
+//                for (int j=i+1;j<allId.size();j++)
+//                {
+//                    if (sig.nextInt() % 2==0){
+//                        // i as raiser
+//                        if (sig.nextInt() % 2==0){
+//                            rrRepo.save(new RaiseRecord(allId.get(i), allId.get(j)));
+//                        }else {
+//                            // save CurrentRelation
+//                            crRepo.save(new CurrentRelation(allId.get(i), allId.get(j)));
+//                        }
+//                    }else {
+//                        // i as acceptor
+//                        if (sig.nextInt() % 2==0){
+//                            // save raiseRecord
+//                            rrRepo.save(new RaiseRecord(allId.get(j), allId.get(i)));
+//                        }else {
+//                            // save CurrentRelation
+//                            crRepo.save(new CurrentRelation(allId.get(j), allId.get(i)));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        private List<Integer> getAllId() {
+//            return repo.findAll().stream()
+//                    .map(UserDO::getId)
+//                    .collect(toList());
+//        }
+//    }
 }

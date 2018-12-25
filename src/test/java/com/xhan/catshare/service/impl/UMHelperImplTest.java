@@ -13,10 +13,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.mail.AuthenticationFailedException;
 import java.io.UnsupportedEncodingException;
 
 import static com.xhan.catshare.entity.generator.UserGenerator.geneLDTO;
@@ -126,6 +128,10 @@ public class UMHelperImplTest {
         message.setTo("623068955@qq.com");
         message.setSubject("test sending message");
         message.setText("hello there" + userDO.getURL());
-        sender.send(message);
+        try {
+            sender.send(message);
+        }catch (MailException afe){
+            System.out.println(afe.getMessage());
+        }
     }
 }

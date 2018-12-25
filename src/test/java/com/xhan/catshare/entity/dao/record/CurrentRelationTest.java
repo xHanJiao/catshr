@@ -1,10 +1,32 @@
 package com.xhan.catshare.entity.dao.record;
 
+import com.xhan.catshare.repository.record.CurrentRecordRepository;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+
+import static com.xhan.catshare.entity.dao.record.CurrentRelation.buildPair;
 import static org.junit.Assert.*;
 
+@SpringBootTest
+@RunWith(SpringRunner.class)
 public class CurrentRelationTest {
+
+    @Autowired private CurrentRecordRepository crRepo;
+
+    @Test
+    public void testPair(){
+        List<CurrentRelation> crs = buildPair(1,  2, "xhanxhan",
+                "xhan", "xchaxcha", "xcha");
+        crs.forEach(
+                cr -> crRepo.save(cr)
+        );
+        crRepo.findAll().forEach(System.out::println);
+    }
 
     @Test
     public void testSuperEquals(){

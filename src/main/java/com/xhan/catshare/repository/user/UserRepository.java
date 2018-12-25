@@ -15,4 +15,5 @@ public interface UserRepository extends JpaRepository<UserDO, Integer>{
     Optional<UserDO> findByAccount(String account);
 
     Optional<UserId> findIdByAccount(String account);
+
 }

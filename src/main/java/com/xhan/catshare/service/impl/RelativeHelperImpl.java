@@ -14,9 +14,11 @@ import com.xhan.catshare.service.RelativeHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.xhan.catshare.entity.dao.record.CurrentRelation.buildPair;
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.ABORT;
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.ACCEPT;
 import static com.xhan.catshare.entity.dao.record.RaiseRecord.WAIT;
@@ -29,7 +31,6 @@ public class RelativeHelperImpl extends RelativeHelper{
     private final DeleteRecordRepository deleRepository;
     private final RaiseRecordRepository raiseRepository;
     private final UserRepository userRepository;
-    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public RelativeHelperImpl(CurrentRecordRepository currentRecordRepository,
                               DeleteRecordRepository deleteRecordRepository,
@@ -139,11 +140,13 @@ public class RelativeHelperImpl extends RelativeHelper{
     }
 
     /**
-     * 将请求记录置位，并且插入一条当前有效好友关系记录
+     * 将请求记录置位，并且插入两条当前有效好友关系记录
+     * 一条正向的，一条反向的
      * @param acceptorId 接受者的id
      * @param raiserId 发起者的id
      */
     @Override
+    @Transactional
     protected void setBitAndAddCurrent(Integer acceptorId, Integer raiserId) {
         RaiseRecord record = raiseRepository
                 .findByRaiserIdAndAcceptorIdAndCurrentState(
@@ -151,7 +154,16 @@ public class RelativeHelperImpl extends RelativeHelper{
                 ).orElseThrow(RaiseRecordNotExistException::new);
         record.setCurrentState(ACCEPT);
         raiseRepository.save(record);
-        currRepository.save(new CurrentRelation(raiserId, acceptorId));
+        UserDO aDO = userRepository
+                .findById(acceptorId)
+                .orElseThrow(AccountNotFoundException::new);
+        UserDO bDO = userRepository
+                .findById(raiserId)
+                .orElseThrow(AccountNotFoundException::new);
+        buildPair(aDO.getId(), bDO.getId(), aDO.getAccount(),
+                aDO.getUsername(), bDO.getAccount(), bDO.getUsername())
+                .forEach(currRepository::save);
+
     }
 
     /**
@@ -194,19 +206,10 @@ public class RelativeHelperImpl extends RelativeHelper{
 
     @Override
     public List<AccountNamePair> fromIdGetCurrentFriend(Integer userId) {
-        List<AccountNamePair> forRaiser = currRepository
-                .findByRaiserId(userId)
+        return  currRepository.findByRaiserId(userId)
                 .stream()
-                .map(this::buildForRaiser)
+                .map(CurrentRelation::buildPair)
                 .collect(toList());
-
-        List<AccountNamePair> forAcceptor = currRepository
-                .findByAcceptorId(userId)
-                .stream()
-                .map(this::buildForAcceptor)
-                .collect(toList());
-        forAcceptor.addAll(forRaiser);
-        return forAcceptor;
     }
 
     private AccountNamePair buildForAcceptor(CurrentRelation cr){

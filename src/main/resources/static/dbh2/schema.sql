@@ -9,8 +9,10 @@ CREATE TABLE `user` (
 );
 CREATE TABLE `current_relation` (
   `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
-  `raiser_id` INTEGER NOT NULL ,
-  `acceptor_id` INTEGER NOT NULL
+  `host_id` INTEGER NOT NULL ,
+  `friend_id` INTEGER NOT NULL ,
+  `friend_account`VARCHAR(14) NOT NULL ,
+  `friend_username` VARCHAR(7) NOT NULL ,
 );
 CREATE TABLE `delete_record`(
   `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -30,7 +32,6 @@ CREATE TABLE `message`(
   `message_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
   `owner_id` INTEGER NOT NULL ,
   `send_time` DATETIME NOT NULL ,
-  `description` VARCHAR(140) NOT NULL ,
-  `MESSAGE_TYPE` CHAR(1) NOT NULL ,
-  `T_FILE_LOCATION` VARCHAR(255)
+  `content` VARCHAR(140) NOT NULL ,
+  `comments` TEXT ,
 );

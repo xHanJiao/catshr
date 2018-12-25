@@ -12,7 +12,6 @@ import java.util.List;
 import static com.xhan.catshare.controller.ControllerConstant.*;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.valueOf;
-import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
 public class RelativeController {
