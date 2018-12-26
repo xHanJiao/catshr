@@ -41,8 +41,6 @@ public class RelativeControllerTest {
     @Autowired private DeleteRecordRepository drRepo;
     @Autowired private UserRepository repo;
 
-//    private Map<Integer, List<RaiseRecord>> asRaiser = new HashMap<>();
-//    private Map<Integer, List<RaiseRecord>> asAcceptor = new HashMap<>();
 
     private MockMvc mvc;
 
@@ -264,51 +262,4 @@ public class RelativeControllerTest {
         }
     }
 
-//    @Test
-//    public void RecordGeneratorTest(){
-//        RecordGenerator gene = new RecordGenerator();
-//        gene.geneRecords();
-//        crRepo.findAll().forEach(System.out::println);
-//        rrRepo.findAll().forEach(System.out::println);
-//    }
-
-//    private class RecordGenerator{
-//        void geneRecords(){
-//            // 如果反正都要得到全部的关系的话，不如直接遍历一遍
-//            randomSaving(getAllId(), new Random(Instant.now().getEpochSecond()));
-//
-//        }
-//
-//        private void randomSaving(List<Integer> allId, Random sig) {
-//            for (int i=0;i<allId.size();i++){
-//                for (int j=i+1;j<allId.size();j++)
-//                {
-//                    if (sig.nextInt() % 2==0){
-//                        // i as raiser
-//                        if (sig.nextInt() % 2==0){
-//                            rrRepo.save(new RaiseRecord(allId.get(i), allId.get(j)));
-//                        }else {
-//                            // save CurrentRelation
-//                            crRepo.save(new CurrentRelation(allId.get(i), allId.get(j)));
-//                        }
-//                    }else {
-//                        // i as acceptor
-//                        if (sig.nextInt() % 2==0){
-//                            // save raiseRecord
-//                            rrRepo.save(new RaiseRecord(allId.get(j), allId.get(i)));
-//                        }else {
-//                            // save CurrentRelation
-//                            crRepo.save(new CurrentRelation(allId.get(j), allId.get(i)));
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        private List<Integer> getAllId() {
-//            return repo.findAll().stream()
-//                    .map(UserDO::getId)
-//                    .collect(toList());
-//        }
-//    }
 }
