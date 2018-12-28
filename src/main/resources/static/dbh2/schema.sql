@@ -33,5 +33,16 @@ CREATE TABLE `message`(
   `owner_id` INTEGER NOT NULL ,
   `send_time` DATETIME NOT NULL ,
   `content` VARCHAR(140) NOT NULL ,
-  `comments` TEXT ,
+  `display_comments` TEXT ,
+  `DTYPE` CHAR(2) NOT NULL ,
+  `file_location` VARCHAR(255)
+);
+CREATE TABLE `comment` (
+  `comment_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `owner_id` INTEGER NOT NULL,
+  `message_id` INTEGER NOT NULL,
+  `content` VARCHAR(140) NOT NULL,
+  `comments` TEXT,
+  `comment_time` TIMESTAMP NOT NULL,
+  `DTYPE` CHAR(1) NOT NULL
 );

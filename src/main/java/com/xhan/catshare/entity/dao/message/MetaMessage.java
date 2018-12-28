@@ -11,7 +11,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Data @NoArgsConstructor
 @Entity @Table(name = "message")
 @EqualsAndHashCode(of = "id")
-public class Message {
+@DiscriminatorColumn(columnDefinition = "CHAR(2)", length = 2)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public abstract class MetaMessage {
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "message_id", nullable = false)
     private Integer id;
@@ -27,10 +29,10 @@ public class Message {
     private Date sendTime;
 
     @Lob @Basic(fetch = FetchType.LAZY)
-    @Column(columnDefinition = "TEXT", length = 65535)
+    @Column(name = "display_comments", columnDefinition = "TEXT", length = 65535)
     private String comments;
 
-    public Message(String content, Integer ownerId) {
+    public MetaMessage(String content, Integer ownerId) {
         this.content = content;
         this.ownerId = ownerId;
         sendTime = new Date();
