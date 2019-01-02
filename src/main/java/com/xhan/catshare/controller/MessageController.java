@@ -1,6 +1,7 @@
 package com.xhan.catshare.controller;
 
-import com.xhan.catshare.entity.dto.message.MessageDTO;
+import com.xhan.catshare.entity.dao.message.MetaMessage;
+import com.xhan.catshare.entity.dto.message.MetaMessageDTO;
 import com.xhan.catshare.service.MessageHelper;
 import com.xhan.catshare.service.RelativeHelper;
 import com.xhan.catshare.service.UserManagerHelper;
@@ -51,17 +52,17 @@ public class MessageController {
             @SessionAttribute Integer userId,
             @RequestParam Integer deleteId
     ){
-      mHelper.deleteMessage(deleteId, userId);
+      mHelper.removeMessage(deleteId, userId);
       return new ResponseEntity(HttpStatus.valueOf(204));
     }
 
     @ResponseBody
     @GetMapping(value = "/getFriendMessages", params = "page")
-    public List<MessageDTO> getFriendMessages(
+    public List<MetaMessageDTO> getFriendMessages(
             @SessionAttribute Integer userId,
             @RequestParam Integer page
     ){
-        return mHelper.findFriendMessagesById(userId, page);
+        return mHelper.getFriendMessages(userId, page);
     }
 
 }

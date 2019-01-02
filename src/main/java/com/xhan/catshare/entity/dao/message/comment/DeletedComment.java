@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Data
 @Entity @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@DiscriminatorValue("D")
+@DiscriminatorValue("DC")
 public class DeletedComment extends MetaComment{
 
 }

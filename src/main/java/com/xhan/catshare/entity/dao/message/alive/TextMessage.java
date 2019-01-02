@@ -9,7 +9,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("T")
+@DiscriminatorValue("AT")
 @Data @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class TextMessage extends AliveMetaMessage {

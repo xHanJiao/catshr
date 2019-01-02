@@ -5,6 +5,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true, of = "fileLocation")
-public class PicMessageDTO extends MessageDTO {
+public class PicMessageDTO extends MetaMessageDTO {
     private String fileLocation;
 }

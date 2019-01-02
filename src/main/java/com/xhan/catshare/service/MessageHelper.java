@@ -1,75 +1,128 @@
 package com.xhan.catshare.service;
 
+import com.xhan.catshare.entity.dao.message.MetaMessage;
 import com.xhan.catshare.entity.dao.message.comment.Comment;
-import com.xhan.catshare.entity.dto.message.CommentCommentDTO;
-import com.xhan.catshare.entity.dto.message.MessageCommentDTO;
-import com.xhan.catshare.entity.dto.message.MessageDTO;
+import com.xhan.catshare.entity.dto.message.MetaMessageDTO;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
+
 import java.util.List;
 
-public abstract class MessageHelper {
+public interface MessageHelper {
 
-    public abstract List<String> getCommentsByPage(int page);
+    /**
+     * 分页时每页显示的动态数
+     */
+    int MESSAGE_PAGE = 20;
 
-    public abstract void saveTextMessage(Integer userId, String content);
+    /**
+     * 通过用户的id获得所有好友的动态，按时间线由近到远排列，并且显示第一页
+     * @param id 当前用户的id，从session中取出
+     * @return 获得的动态列表
+     */
+    List<MetaMessageDTO> getFriendMessages(int id);
 
-    public abstract void savePicMessage(Integer userId, CommonsMultipartFile pics, String content);
+    /**
+     * 通过用户的id获得所有好友的动态，按时间线由近到远排列，并且显示指定的页数
+     * 当页数超出时，应当抛出一个RuntimeException
+     * todo 细化这里应该用的异常
+     * @param id 当前用户的id，从session中取出
+     * @param page 要显示的页数
+     * @return 获得的动态列表
+     */
+    List<MetaMessageDTO> getFriendMessages(int id, int page);
 
-    public abstract List<MessageDTO> findFriendMessagesById(Integer userId, int page);
+    /**
+     * todo 说起来这里校验什么的应该在controller里做，因为MessageHelper会有不同的实现类，不能每个类都校验一遍吧
+     * 保存一条图片动态
+     * @param userId 发送动态的用户的id
+     * @param pics Multipart文件
+     * @param content 文字描述的内容
+     */
+    void savePicMessage(Integer userId, CommonsMultipartFile pics, String content);
 
-    public void addMessageComment(MessageCommentDTO dto, int userId){
-        checkMessageComment(dto, userId);
-        addMessageComment(buildComment(dto, userId));
-    }
+    /**
+     * 保存一条文字动态
+     * @param userId 从session中获得的发送动态的用户id
+     * @param content 动态的内容（文字）
+     */
+    void saveTextMessage(Integer userId, String content);
 
-    public void addCommentComment(CommentCommentDTO dto, int userId){
-        checkCommentComment(dto, userId);
-        addCommentComment(buildCommentComment(dto, userId));
-    }
+    /**
+     * 保存一条针对动态的评论
+     * @param content 评论的内容
+     * @param messageId 动态的id
+     * @param userId 发起评论的用户的id
+     */
+    void saveCommentToMessage(String content, int messageId, int userId);
 
-    public void deleteMessage(Integer messageId, Integer userId){
-        checkBeforeDeleteMessage(messageId, userId);
-        doDeleteMessageAfterCheck(messageId, userId);
-    }
+    /**
+     * 保存一条针对评论的评论
+     * @param content 评论的内容
+     * @param commentId 针对动态的评论的id（被评论的那个）
+     * @param userId 发起评论的用户的id
+     */
+    void saveCommentToComment(String content, int commentId, int userId);
 
-    public void deleteCommentComment(String content, int commentId, int userId){
-        checkIsOwner(content, commentId, userId);
-        updateCommentRemoveSubComment(commentId, content);
-    }
+    /**
+     * 移除一条针对动态的评论
+     * @param messageId 要移除评论的动态的id
+     * @param commentId 要移除的评论id
+     * @param userId session中获得的用户id，应该是评论所有者或者动态所有者
+     */
+    void removeCommentOfMessage(int messageId, int commentId, int userId);
 
-    public void deleteComment(int commentId, int messageId, int userId){
-        checkIsOwner(messageId, commentId, userId);
-        deleteComment(buildComment(commentId));
-    }
+    /**
+     * 移除一条针对评论的评论
+     * @param content 要移除的评论，因为它不是实体，所以只能这样指代
+     * @param commentId 要移除的评论的id
+     * @param userId session中获得的用户id，它应该是评论的所有者
+     */
+    void removeCommentOfComment(String content, int commentId, int userId);
 
-    public abstract void deleteComment(Comment comment);
+    /**
+     * 移除一条动态
+     * @param messageId 动态的id
+     * @param userId session中获得的用户id，应该是动态的所有者
+     */
+    void removeMessage(int messageId, int userId);
 
-    protected abstract Comment buildComment(int commentId);
+    /**
+     * 获得一条动态的第一页评论
+     * @param messageId 动态的id
+     * @param userId 用户的id
+     * @return 返回评论的内容。
+     */
+    List<Comment> getCommentsOfMessage(int messageId, int userId);
 
-    protected abstract void updateCommentRemoveSubComment(int commentId, String content);
+    /**
+     * 获得一条动态的第page页评论
+     * @param messageId 动态的id
+     * @param userId 用户的id
+     * @param page 获取的页数
+     * @return 返回评论的内容。
+     */
+    List<Comment> getCommentsOfMessage(int messageId, int userId, int page);
 
-    protected abstract void checkIsOwner(String content, int commentId, int userId);
+    /**
+     * 获取针对评论的评论，不分页，直接获得所有
+     * @param messageId 评论所属的动态的id
+     * @param commentId 评论的id
+     * @return 返回字符串形式的用户名-评论集合
+     */
+    String getCommentsOfComments(int messageId, int commentId);
 
-    protected abstract void checkIsOwner(int messageId, int commentId, int userId);
+    /**
+     * 获取自己发送的动态的第一页（按时间由近到远排序）
+     * @param id 自己的id
+     * @return 第一页动态的列表
+     */
+    List<MetaMessage> getSelfMessages(int id);
 
-    protected abstract Comment buildCommentComment(CommentCommentDTO dto, int userId);
-
-    protected abstract void addCommentComment(Comment comment);
-
-    protected abstract void checkCommentComment(CommentCommentDTO dto, int userId);
-
-    protected abstract void doDeleteCommentAfterCheck(int commentId, int userId);
-
-    protected abstract void checkBeforeDeleteComment(int commentId, int userId);
-
-    protected abstract Comment buildComment(MessageCommentDTO dto, int userId);
-
-    protected abstract void addMessageComment(Comment comment);
-
-    protected abstract void checkMessageComment(MessageCommentDTO dto, int userId);
-
-    protected abstract void doDeleteMessageAfterCheck(Integer messageId, Integer userId);
-
-    protected abstract void checkBeforeDeleteMessage(Integer messageId, Integer userId);
-
+    /**
+     * 以分页的形式获取自己发送过的动态，获得第page页
+     * @param id 自己的id
+     * @param page 要获取的页数
+     * @return 动态的列表
+     */
+    List<MetaMessage> getSelfMessages(int id, int page);
 }

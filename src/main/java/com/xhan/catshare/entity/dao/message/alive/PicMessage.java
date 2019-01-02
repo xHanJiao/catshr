@@ -9,7 +9,7 @@ import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 
 @Entity
-@DiscriminatorValue("P")
+@DiscriminatorValue("AP")
 @Data @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class PicMessage extends AliveMetaMessage {
