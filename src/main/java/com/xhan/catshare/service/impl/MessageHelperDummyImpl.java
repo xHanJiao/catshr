@@ -2,6 +2,7 @@ package com.xhan.catshare.service.impl;
 
 import com.xhan.catshare.entity.dao.message.MetaMessage;
 import com.xhan.catshare.entity.dao.message.comment.Comment;
+import com.xhan.catshare.entity.dto.message.MetaMessageDTO;
 import com.xhan.catshare.service.MessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -11,13 +12,14 @@ import java.util.List;
 @Service
 public class MessageHelperDummyImpl implements MessageHelper {
 
+
     @Override
-    public List<MetaMessage> getFriendMessages(int id) {
+    public List<MetaMessageDTO> getFriendMessages(int id) {
         return null;
     }
 
     @Override
-    public List<MetaMessage> getFriendMessages(int id, int page) {
+    public List<MetaMessageDTO> getFriendMessages(int id, int page) {
         return null;
     }
 

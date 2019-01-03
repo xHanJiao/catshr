@@ -3,6 +3,7 @@ package com.xhan.catshare.entity.dao.message.comment;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
 import java.util.Date;
 
@@ -23,7 +24,7 @@ import java.util.Date;
 @Data @NoArgsConstructor
 @Entity @Table(name = "comment")
 @EqualsAndHashCode(of = "id")
-@DiscriminatorColumn(columnDefinition = "CHAR(2)")
+@DiscriminatorColumn(name = "ALIVESIG", columnDefinition = "CHAR(2) NOT NULL")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class MetaComment {
 
@@ -50,4 +51,23 @@ public abstract class MetaComment {
     @Column(name = "comment_time")
     private Date commentTime;
 
+    MetaComment(Integer ownerId, Integer messageId, String content) {
+        this.ownerId = ownerId;
+        this.messageId = messageId;
+        this.content = content;
+        commentTime = new Date();
+        comments = "";
+    }
+
+    @Override
+    public String toString() {
+        return "MetaComment{" +
+                "id=" + id +
+                ", ownerId=" + ownerId +
+                ", messageId=" + messageId +
+                ", content='" + content + '\'' +
+                ", comments='" + comments + '\'' +
+                ", commentTime=" + commentTime +
+                '}';
+    }
 }

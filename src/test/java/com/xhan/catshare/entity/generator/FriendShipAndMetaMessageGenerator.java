@@ -14,22 +14,27 @@ import com.xhan.catshare.repository.user.UserRepository;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringRunner;
-
 import java.time.LocalDate;
 import java.util.*;
-
 import static java.lang.String.format;
 
+/**
+ * 注意：这里生成的策略是存入指定数目个好友关系，再给每一对好友关系
+ * 存入一个动态，因此在使用时需要遵守几个地方：
+ * 1、生成的总好友对数小于人数n的n(n-1)/2对
+ * 2、只有RepeatHybridMessageGenerator方法可以给一对好友生成多个消息
+ * 其他的方法都是一对好友一个消息
+ */
 @RunWith(SpringRunner.class)
 public class FriendShipAndMetaMessageGenerator {
 
-    @Autowired protected RaiseRecordRepository rrRepo;
-    @Autowired protected CurrentRecordRepository crRepo;
-    @Autowired protected DeleteRecordRepository drRepo;
-    @Autowired protected UserRepository repo;
-    @Autowired protected MetaMessageRepository mmRepo;
-    @Autowired protected TextMessageRepository tmRepo;
-    @Autowired protected PicMessageRepository pmRepo;
+    @Autowired protected RaiseRecordRepository raiseRecordRepository;
+    @Autowired protected CurrentRecordRepository currentRecordRepository;
+    @Autowired protected DeleteRecordRepository deleteRecordRepository;
+    @Autowired protected UserRepository userRepository;
+    @Autowired protected MetaMessageRepository metaMessageRepository;
+    @Autowired protected TextMessageRepository textMessageRepository;
+    @Autowired protected PicMessageRepository picMessageRepository;
 
     /**
      * 随机生成几条信息加入到用户中，并且随机生成
@@ -43,27 +48,31 @@ public class FriendShipAndMetaMessageGenerator {
      * tips：每次加入IDPair的时候，要一次加入一对
      */
     protected void TextMessageGenerator(int times) {
-        List<UserDO> users = repo.findAll();
+        List<UserDO> users = userRepository.findAll();
+        assert times < users.size() * users.size() / 2;
+
         getIdPairSets(times).forEach(p -> {
-                    crRepo.save(new CurrentRelation(
+                    currentRecordRepository.save(new CurrentRelation(
                             users.get(p.rid).getId(),
                             users.get(p.aid).getId(),
                             users.get(p.aid).getAccount(),
                             users.get(p.aid).getUsername()));
-                    mmRepo.save(buildTextMessageFromPair(p, users));
+                    metaMessageRepository.save(buildTextMessageFromPair(p, users));
                 }
         );
     }
 
     protected void PicMessageGenerator(int times) {
-        List<UserDO> users = repo.findAll();
+        List<UserDO> users = userRepository.findAll();
+        assert times < users.size() * users.size() / 2;
+
         getIdPairSets(times).forEach(p -> {
-                    crRepo.save(new CurrentRelation(
+                    currentRecordRepository.save(new CurrentRelation(
                             users.get(p.rid).getId(),
                             users.get(p.aid).getId(),
                             users.get(p.aid).getAccount(),
                             users.get(p.aid).getUsername()));
-                    mmRepo.save(buildPicMessageFromPair(p, users));
+                    metaMessageRepository.save(buildPicMessageFromPair(p, users));
                 }
         );
     }
@@ -73,27 +82,31 @@ public class FriendShipAndMetaMessageGenerator {
      * @param times 生成信息的数目
      */
     protected void HybridMessageGenerator(int times) {
-        List<UserDO> users = repo.findAll();
+        List<UserDO> users = userRepository.findAll();
+        assert times < users.size() * users.size() / 2;
+
         Random ra = new Random(new Date().getTime());
         getIdPairSets(times).forEach(p -> {
-                    crRepo.save(new CurrentRelation(
+                    currentRecordRepository.save(new CurrentRelation(
                             users.get(p.rid).getId(),
                             users.get(p.aid).getId(),
                             users.get(p.aid).getAccount(),
                             users.get(p.aid).getUsername()));
                     if(ra.nextInt(10) % 2==1) {
-                        tmRepo.save(buildTextMessageFromPair(p, users));
+                        textMessageRepository.save(buildTextMessageFromPair(p, users));
                     } else
-                        pmRepo.save(buildPicMessageFromPair(p, users));
+                        picMessageRepository.save(buildPicMessageFromPair(p, users));
                 }
         );
     }
 
     protected void RepeatHybridMessageGenerator(int times) {
-        List<UserDO> users = repo.findAll();
+        List<UserDO> users = userRepository.findAll();
+        assert times < users.size() * users.size() / 2;
+
         Random ra = new Random(new Date().getTime());
         getIdPairSets(times).forEach(p -> {
-                    crRepo.save(new CurrentRelation(
+                    currentRecordRepository.save(new CurrentRelation(
                             users.get(p.rid).getId(),
                             users.get(p.aid).getId(),
                             users.get(p.aid).getAccount(),
@@ -101,16 +114,20 @@ public class FriendShipAndMetaMessageGenerator {
                     int messageNum = 3;
                     if(ra.nextInt(10) % 2==1) {
                         while (messageNum>0){
-                            tmRepo.save(buildTextMessageFromPair(p, users));
+                            textMessageRepository.save(buildTextMessageFromPair(p, users));
                             messageNum--;
                         }
                     } else
                         while (messageNum>0){
-                            pmRepo.save(buildPicMessageFromPair(p, users));
+                            picMessageRepository.save(buildPicMessageFromPair(p, users));
                             messageNum--;
                         }
                 }
         );
+    }
+
+    private void CurrentRelationGenerator(Set<IdPair> pairs){
+
     }
     /**
      * 随机产生times个IdPair并将它们加入到集合中返回
@@ -119,13 +136,14 @@ public class FriendShipAndMetaMessageGenerator {
      * @return 返回一个IdPair组成的Set
      */
     private Set<IdPair> getIdPairSets(int times) {
-        int userNum = repo.findAll().size();
+        int userNum = userRepository.findAll().size();
         assert times < ((userNum-1) * userNum / 2);
+
         Set<IdPair> idSets = new HashSet<>(16);
         Random random = new Random(new Date().getTime());
         while (times > 0){
-            int index1 = random.nextInt(repo.findAll().size());
-            int index2 = random.nextInt(repo.findAll().size());
+            int index1 = random.nextInt(userRepository.findAll().size());
+            int index2 = random.nextInt(userRepository.findAll().size());
             if(index1 != index2){
                 List<IdPair> pairs = new IdPair().getPairs(index1, index2);
                 if(idSets.addAll(pairs)){
@@ -154,6 +172,22 @@ public class FriendShipAndMetaMessageGenerator {
                 users.get(p.rid).getId(),
                 format(fileLocationPattern, users.get(p.rid).getUsername(), LocalDate.now().toString())
                 );
+    }
+
+    protected void clearDB(){
+        userRepository.deleteAll();
+        raiseRecordRepository.deleteAll();
+        deleteRecordRepository.deleteAll();
+        currentRecordRepository.deleteAll();
+        metaMessageRepository.deleteAll();
+    }
+    protected void populateUsers(){
+
+        UserGenerator.generator()
+                .forEach(u -> {
+                    u.setChecked(true);
+                    userRepository.save(u);
+                });
     }
 
     class IdPair{

@@ -12,7 +12,7 @@ public interface MessageHelper {
     /**
      * 分页时每页显示的动态数
      */
-    int MESSAGE_PAGE = 20;
+    int MESSAGE_PAGE = 5;
 
     /**
      * 通过用户的id获得所有好友的动态，按时间线由近到远排列，并且显示第一页

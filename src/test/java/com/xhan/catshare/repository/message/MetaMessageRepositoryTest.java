@@ -4,7 +4,6 @@ import com.xhan.catshare.entity.dao.message.MetaMessage;
 import com.xhan.catshare.entity.dao.record.CurrentRelation;
 import com.xhan.catshare.entity.dao.record.Pair;
 import com.xhan.catshare.entity.generator.FriendShipAndMetaMessageGenerator;
-import com.xhan.catshare.entity.generator.UserGenerator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,34 +21,27 @@ public class MetaMessageRepositoryTest extends FriendShipAndMetaMessageGenerator
 
     @Before
     public void setUp() {
-        assert repo != null;
-        assert rrRepo != null;
-        assert crRepo != null;
-        assert drRepo != null;
+        assert userRepository != null;
+        assert raiseRecordRepository != null;
+        assert currentRecordRepository != null;
+        assert deleteRecordRepository != null;
 
-        UserGenerator.generator()
-                .forEach(u -> {
-                    u.setChecked(true);
-                    repo.save(u);
-                });
+        populateUsers();
         Random times = new Random(new Date().getTime());
         RepeatHybridMessageGenerator(times.nextInt(10)+1);
     }
 
     @After
     public void tearDown() {
-        repo.deleteAll();
-        rrRepo.deleteAll();
-        drRepo.deleteAll();
-        crRepo.deleteAll();
+        clearDB();
     }
 
     @Test
     public void show(){
         System.out.println("---------------relations---------------");
-        crRepo.findAll().forEach(System.out::println);
+        currentRecordRepository.findAll().forEach(System.out::println);
         System.out.println("---------------messages---------------");
-        mmRepo.findAll().forEach(System.out::println);
+        metaMessageRepository.findAll().forEach(System.out::println);
     }
 
     /**
@@ -63,19 +55,19 @@ public class MetaMessageRepositoryTest extends FriendShipAndMetaMessageGenerator
     @Test
     public void findMessagesByFriendShip(){
         Random random = new Random(new Date().getTime());
-        CurrentRelation cr = crRepo.findAll()
-                .get(random.nextInt(crRepo.findAll().size()));
+        CurrentRelation cr = currentRecordRepository.findAll()
+                .get(random.nextInt(currentRecordRepository.findAll().size()));
 
         List<MetaMessage> checks = new ArrayList<>();
-        crRepo.findByRaiserId(cr.getRaiserId()).stream()
+        currentRecordRepository.findByRaiserId(cr.getRaiserId()).stream()
                 .map(Pair::getAcceptorId)
-                .map(mmRepo::findByOwnerId)
+                .map(metaMessageRepository::findByOwnerId)
                 .forEach(checks::addAll);
 
-        List<MetaMessage> metaMessages = mmRepo
+        List<MetaMessage> metaMessages = metaMessageRepository
                 .findMessagesByFriendShip(cr.getRaiserId());
         assert checks.equals(metaMessages);
-        mmRepo.findMessagesByFriendShip(
+        metaMessageRepository.findMessagesByFriendShip(
                 cr.getRaiserId(),
                 PageRequest.of(0, 10, Sort.by("id"))
         ).forEach(System.out::println);

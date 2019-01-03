@@ -207,7 +207,7 @@ public class RelativeControllerTest {
 //    @Test
 //    public void getRaiseRecord(){
 //        new RecordGenerator().geneRecords();
-//        assert rrRepo.findAll().size() > 0;
+//        assert raiseRecordRepository.findAll().size() > 0;
 //    }
 
     @Test

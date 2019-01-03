@@ -44,5 +44,5 @@ CREATE TABLE `comment` (
   `content` VARCHAR(140) NOT NULL,
   `comments` TEXT,
   `comment_time` TIMESTAMP NOT NULL,
-  `DTYPE` CHAR(1) NOT NULL
+  `ALIVESIG` CHAR(2) NOT NULL
 );

@@ -12,7 +12,6 @@ public abstract class DeletedMetaMessage extends MetaMessage {
     }
 
     public DeletedMetaMessage(AliveMetaMessage aliveMetaMessage){
-        setComments(aliveMetaMessage.getComments());
         setContent(aliveMetaMessage.getContent());
         setOwnerId(aliveMetaMessage.getOwnerId());
         setSendTime(aliveMetaMessage.getSendTime());

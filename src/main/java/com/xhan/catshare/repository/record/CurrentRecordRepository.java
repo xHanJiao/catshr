@@ -17,4 +17,6 @@ public interface CurrentRecordRepository extends JpaRepository<CurrentRelation, 
     List<CurrentRelation> findByAcceptorId(Integer acceptorId);
 
     List<CurrentRelation> findByRaiserId(Integer raiserId);
+
+    boolean existsByRaiserIdAndAcceptorId(int raiserId, int acceptorId);
 }

@@ -27,7 +27,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Data @NoArgsConstructor
 @Entity @Table(name = "message")
 @EqualsAndHashCode(of = "id")
-@DiscriminatorColumn(columnDefinition = "CHAR(2)", length = 2)
+@DiscriminatorColumn(columnDefinition = "CHAR(2)")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class MetaMessage {
     @Id @GeneratedValue(strategy = IDENTITY)
