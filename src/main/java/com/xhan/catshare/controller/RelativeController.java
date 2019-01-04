@@ -1,7 +1,6 @@
 package com.xhan.catshare.controller;
 
 import com.xhan.catshare.entity.dto.IdNamePair;
-import com.xhan.catshare.exception.records.IdNotFoundException;
 import com.xhan.catshare.exception.records.RecordException;
 import com.xhan.catshare.service.RelativeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +28,11 @@ public class RelativeController {
             @RequestParam Integer acceptorId,
             @SessionAttribute Integer userId
     ){
-        if (acceptorId == null) throw new IdNotFoundException();
-
         relativeHelper.checkAndSaveRaiseRecord(acceptorId, userId);
         return new ResponseEntity(valueOf(200));
     }
 
-    @PostMapping(value = friendURL, params = "confirm")
+    @PutMapping(value = friendURL)
     public ResponseEntity confirm(
             @RequestParam Integer confirm,
             @SessionAttribute Integer userId
@@ -44,7 +41,7 @@ public class RelativeController {
         return new ResponseEntity(valueOf(200));
     }
 
-    @PostMapping(value = friendURL, params = "delete")
+    @DeleteMapping(value = friendURL)
     public ResponseEntity deleteFriend(
             @RequestParam Integer delete,
             @SessionAttribute Integer userId

@@ -23,7 +23,7 @@ public class CurrentRelation extends Pair {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "friend_username", nullable = false)
+    @Column(name = "friend_name", nullable = false)
     private String username;
 
     CurrentRelation(Integer raiserId,

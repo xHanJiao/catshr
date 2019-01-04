@@ -1,7 +1,6 @@
 package com.xhan.catshare.controller;
 
 import com.xhan.catshare.entity.dao.message.MetaMessage;
-import com.xhan.catshare.entity.dto.message.MetaMessageDTO;
 import com.xhan.catshare.service.MessageHelper;
 import com.xhan.catshare.service.RelativeHelper;
 import com.xhan.catshare.service.UserManagerHelper;
@@ -58,7 +57,7 @@ public class MessageController {
 
     @ResponseBody
     @GetMapping(value = "/getFriendMessages", params = "page")
-    public List<MetaMessageDTO> getFriendMessages(
+    public List<MetaMessage> getFriendMessages(
             @SessionAttribute Integer userId,
             @RequestParam Integer page
     ){

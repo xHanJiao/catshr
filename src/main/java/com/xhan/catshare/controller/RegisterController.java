@@ -6,18 +6,17 @@ import com.xhan.catshare.entity.dto.RegisterDTO;
 import com.xhan.catshare.exception.loregi.RegisterException;
 import com.xhan.catshare.service.UserManagerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 
 import static com.xhan.catshare.controller.ControllerConstant.*;
+import static com.xhan.catshare.exception.loregi.RegisterException.CHECKERROR;
 import static com.xhan.catshare.exception.loregi.RegisterException.ERRORINPUT;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -31,14 +30,9 @@ public class RegisterController {
         this.helper = helper;
     }
 
-    @RequestMapping(value = registerURL, method = RequestMethod.GET)
-    public String register(){
-        return registerPage;
-    }
-
     @RequestMapping(value = registerURL, method = RequestMethod.POST)
-    public String register(@Valid RegisterDTO dto,
-                           BindingResult result){
+    public ResponseEntity register(@RequestBody @Valid RegisterDTO dto,
+                                   BindingResult result) {
         if(result.hasErrors())
             throw new RegisterException(ERRORINPUT);
 
@@ -46,7 +40,7 @@ public class RegisterController {
 
         helper.sendEmail(user);
 
-        return checkPage;
+        return new ResponseEntity(HttpStatus.valueOf(200));
     }
 
     @RequestMapping(value = registerURL, method = RequestMethod.GET, params = {checkPage, "email"})
@@ -55,7 +49,7 @@ public class RegisterController {
                                 RedirectAttributes model){
         UserDO user = helper.findUserByEmail(email);
         if (user.getChecked())
-            throw new RegisterException("should not check twice");
+            throw new RegisterException(CHECKERROR);
 
         if(user.getIdentifier().equals(check)){
             user.setChecked(true);

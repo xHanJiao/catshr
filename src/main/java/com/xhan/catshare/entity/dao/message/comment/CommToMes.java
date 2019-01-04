@@ -3,12 +3,15 @@ package com.xhan.catshare.entity.dao.message.comment;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import javax.persistence.*;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
 @Data
-@Entity @NoArgsConstructor
+@NoArgsConstructor
+@DiscriminatorValue("M")
 @EqualsAndHashCode(callSuper = true)
-@DiscriminatorValue("DC")
-public class DeletedComment extends MetaComment{
+public class CommToMes extends MetaComment {
 
 }

@@ -7,10 +7,12 @@ spring:
     username: sa
     driver-class-name: org.h2.Driver
     url: jdbc:h2:mem:test
+    data: classpath:/static/dbh2/data.sql
   jpa:
     hibernate:
       ddl-auto: validate
     show-sql: true
+    open-in-view: false
   thymeleaf:
     cache: false
   mail:
@@ -18,4 +20,3 @@ spring:
     username: 3195573606@qq.com
     password: xpkfvaatkersdheb
     properties: {mail.smtp.auth: true,smtp.starttls.enable: true,smtp.starttls.required: true}
-    port: 587

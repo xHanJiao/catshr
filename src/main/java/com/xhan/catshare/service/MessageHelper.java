@@ -1,8 +1,7 @@
 package com.xhan.catshare.service;
 
 import com.xhan.catshare.entity.dao.message.MetaMessage;
-import com.xhan.catshare.entity.dao.message.comment.Comment;
-import com.xhan.catshare.entity.dto.message.MetaMessageDTO;
+import com.xhan.catshare.entity.dao.message.comment.CommToMes;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import java.util.List;
@@ -19,7 +18,7 @@ public interface MessageHelper {
      * @param id 当前用户的id，从session中取出
      * @return 获得的动态列表
      */
-    List<MetaMessageDTO> getFriendMessages(int id);
+    List<MetaMessage> getFriendMessages(int id);
 
     /**
      * 通过用户的id获得所有好友的动态，按时间线由近到远排列，并且显示指定的页数
@@ -29,10 +28,9 @@ public interface MessageHelper {
      * @param page 要显示的页数
      * @return 获得的动态列表
      */
-    List<MetaMessageDTO> getFriendMessages(int id, int page);
+    List<MetaMessage> getFriendMessages(int id, int page);
 
     /**
-     * todo 说起来这里校验什么的应该在controller里做，因为MessageHelper会有不同的实现类，不能每个类都校验一遍吧
      * 保存一条图片动态
      * @param userId 发送动态的用户的id
      * @param pics Multipart文件
@@ -52,16 +50,21 @@ public interface MessageHelper {
      * @param content 评论的内容
      * @param messageId 动态的id
      * @param userId 发起评论的用户的id
+     * @param ownerName 发起评论的用户的用户名
      */
-    void saveCommentToMessage(String content, int messageId, int userId);
+    void saveCommentToMessage(String content, int messageId, int userId, String ownerName);
 
     /**
-     * 保存一条针对评论的评论
+     * 存储一条针对评论的评论
      * @param content 评论的内容
      * @param commentId 针对动态的评论的id（被评论的那个）
      * @param userId 发起评论的用户的id
+     * @param ownerName 发起评论的用户的用户名
+     * @param messageId 所在的动态id
+     * @param acceptorName 被评论的评论的所有者
+     * @param acceptorId 被评论的评论的所有者id
      */
-    void saveCommentToComment(String content, int commentId, int userId);
+    void saveCommentToComment(String content, int messageId, int commentId, int userId, String ownerName, String acceptorName, String acceptorId);
 
     /**
      * 移除一条针对动态的评论
@@ -92,7 +95,7 @@ public interface MessageHelper {
      * @param userId 用户的id
      * @return 返回评论的内容。
      */
-    List<Comment> getCommentsOfMessage(int messageId, int userId);
+    List<CommToMes> getCommentsOfMessage(int messageId, int userId);
 
     /**
      * 获得一条动态的第page页评论
@@ -101,7 +104,7 @@ public interface MessageHelper {
      * @param page 获取的页数
      * @return 返回评论的内容。
      */
-    List<Comment> getCommentsOfMessage(int messageId, int userId, int page);
+    List<CommToMes> getCommentsOfMessage(int messageId, int userId, int page);
 
     /**
      * 获取针对评论的评论，不分页，直接获得所有
