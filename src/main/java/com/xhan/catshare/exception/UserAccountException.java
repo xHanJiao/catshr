@@ -2,7 +2,7 @@ package com.xhan.catshare.exception;
 
 public class UserAccountException extends RuntimeException {
 
-    public static final String NOACCOUNT = "no such account";
+    public static final String NOACCOUNT = "no such email";
 
     public UserAccountException() {
     }

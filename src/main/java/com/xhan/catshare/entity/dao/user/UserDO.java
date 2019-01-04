@@ -11,14 +11,13 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
+import static com.xhan.catshare.controller.ControllerConstant.host;
 import static com.xhan.catshare.controller.ControllerConstant.registerURL;
 import static javax.persistence.GenerationType.IDENTITY;
 import static javax.persistence.TemporalType.DATE;
-import static com.xhan.catshare.controller.ControllerConstant.*;
 
 @Data
 @Entity(name = "user")
@@ -27,12 +26,11 @@ public class UserDO extends UserInfoDTO {
 
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(nullable = false, name = "user_id")
-    Integer id;
-
+    private Integer id;
 
     @Temporal(value = DATE)
     @Column(name = "register_date", nullable = false)
-    Date registerDate;
+    private Date registerDate;
 
     @Column(name = "check_state", nullable = false)
     private Boolean checked;
@@ -41,8 +39,8 @@ public class UserDO extends UserInfoDTO {
         super();
     }
 
-    public UserDO(String account, String username, String password, String email) {
-        super(account, username, password, email);
+    public UserDO(String username, String password, String email) {
+        super(username, password, email);
         setRegisterDate(new Date());
     }
 
@@ -52,11 +50,11 @@ public class UserDO extends UserInfoDTO {
     }
 
     public String getURL() throws UnsupportedEncodingException {
-        if(getAccount()==null)
+        if (getEmail() == null)
             throw new IllegalStateException();
 
-        return host + registerURL + "?account=" +
-                URLEncoder.encode(this.getAccount(), "ASCII") +
+        return host + registerURL + "?email=" +
+                URLEncoder.encode(this.getEmail(), "ASCII") +
                 "&" +
                 "check=" + getIdentifier();
     }
@@ -64,7 +62,7 @@ public class UserDO extends UserInfoDTO {
     public String getIdentifier() {
         String identifier;
         try {
-            String result = fromAccountGetUUID();
+            String result = fromEmailGetUUID();
 
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.update(result.getBytes());
@@ -77,7 +75,7 @@ public class UserDO extends UserInfoDTO {
             identifier = builder.toString().replaceAll("-", "");
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
             e.printStackTrace();
-            identifier = getAccount();
+            identifier = getEmail();
         }
         return identifier;
     }
@@ -88,8 +86,8 @@ public class UserDO extends UserInfoDTO {
         return userDO;
     }
 
-    private String fromAccountGetUUID() throws UnsupportedEncodingException {
-        return UUID.nameUUIDFromBytes(getAccount().getBytes("utf-8"))
+    private String fromEmailGetUUID() throws UnsupportedEncodingException {
+        return UUID.nameUUIDFromBytes(getEmail().getBytes("utf-8"))
                 .toString()
                 .replaceAll("-", "");
     }

@@ -1,7 +1,6 @@
 package com.xhan.catshare.repository.record;
 
 import com.xhan.catshare.entity.dao.record.CurrentRelation;
-import com.xhan.catshare.entity.dto.AccountNamePair;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

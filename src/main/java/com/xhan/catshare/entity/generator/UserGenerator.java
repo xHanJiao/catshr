@@ -32,10 +32,9 @@ public class UserGenerator {
         if(onelen<2 || onelen>7)
             throw new IllegalArgumentException("name");
         if(twolen<7 || twolen>14)
-            throw new IllegalArgumentException("account");
+            throw new IllegalArgumentException("email");
 
         UserDO user = new UserDO(
-                two,
                 one,
                 two,
                 one+ emailSuffix
@@ -48,7 +47,6 @@ public class UserGenerator {
         String two = one+one;
 
         return new RegisterDTO(
-                two,
                 one,
                 two,
                 two,

@@ -2,6 +2,7 @@ package com.xhan.catshare.exception.records;
 
 public class IdNotFoundException extends RaiseRecordException{
     public IdNotFoundException() {
+        super("error !");
     }
 
     public IdNotFoundException(String message) {

@@ -12,13 +12,11 @@ public interface UserManagerHelper {
 
     void checkRegisterDTO(RegisterDTO dto);
 
-    Integer getUserDOId(String account);
+    Integer getUserDOId(String email);
 
     void sendEmail(UserDO userDO);
 
-    UserDO findUserByAccount(String account);
-
-    UserDO findUserById(Integer userId);
+    UserDO findUserByEmail(String email);
 
     UserDO saveUser(UserDO user);
 }

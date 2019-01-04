@@ -1,11 +1,15 @@
 package com.xhan.catshare.service;
 
 import com.xhan.catshare.entity.dao.record.RaiseRecord;
-import com.xhan.catshare.entity.dto.AccountNamePair;
+import com.xhan.catshare.entity.dto.IdNamePair;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * 在这个类里，因为选择了将用户的主键暴露出去，所以所有用到
+ * 前端传来的主键的地方，都要对主键进行校验
+ */
 public abstract class RelativeHelper {
 
     /**
@@ -13,12 +17,11 @@ public abstract class RelativeHelper {
      * （这条记录应该是置位为等待的）
      * 如果校验失败，校验函数应该抛出一个运行时异常（因为不知道具体是什么错误
      * 导致校验失败，所以把抛出异常的工作交给子类）
-     * @param acceptorAccount 申请者的账号，未校验是否存在
+     * @param acceptorId 申请者的主键值，未校验是否存在
      * @param raiserId 接受者的id，从session中获得
      */
     @Transactional
-    public void checkAndSaveRaiseRecord(String acceptorAccount, Integer raiserId) {
-        Integer acceptorId = findUserIdByAccount(acceptorAccount);
+    public void checkAndSaveRaiseRecord(Integer acceptorId, Integer raiserId) {
         checkRaiseRecord(acceptorId, raiserId);
         saveRaiseRecord(new RaiseRecord(raiserId, acceptorId));
     }
@@ -48,12 +51,11 @@ public abstract class RelativeHelper {
      * 如果校验失败，校验的函数要负责抛出未检查异常
      * 如果校验成功，则将请求记录置位并且插入一条当前
      * 可用关系。
-     * @param acceptorAccount 请求者的账号（未确认存在）
+     * @param acceptorId 请求者的id（未确认存在）
      * @param raiserId 接受者的id，从session获得
      */
     @Transactional
-    public void confirmRaiseRecord(String acceptorAccount, Integer raiserId){
-        Integer acceptorId = findUserIdByAccount(acceptorAccount);
+    public void confirmRaiseRecord(Integer acceptorId, Integer raiserId) {
         checkRaiseRecordBeforeConfirm(acceptorId, raiserId);
         setBitAndAddCurrent(acceptorId, raiserId);
     }
@@ -63,11 +65,11 @@ public abstract class RelativeHelper {
     protected abstract List<RaiseRecord> findExpiredRecord();
 
     /**
-     * 通过账号找到用户的id，应该保证返回id，如果没有就抛出异常
-     * @param account 账号
+     * 通过邮箱找到用户的id，应该保证返回id，如果没有就抛出异常
+     * @param email 邮箱
      * @return 数据库主键id
      */
-    public abstract Integer findUserIdByAccount(String account);
+    public abstract Integer findUserIdByEmail(String email);
 
     /**
      * 在确认添加好友请求前先对其进行校验，
@@ -87,12 +89,11 @@ public abstract class RelativeHelper {
 
     /**
      * 删除好友关系的方法，先检验，检验通过再删除
-     * @param acceptorAccount 接受者的账户，未必有效，要检验
+     * @param acceptorId 被删除者的id，未必有效，要检验
      * @param raiserId 发起者的id，来自Session
      */
     @Transactional
-    public void deleteFriend(String acceptorAccount, Integer raiserId){
-        Integer acceptorId = findUserIdByAccount(acceptorAccount);
+    public void deleteFriend(Integer acceptorId, Integer raiserId) {
         checkBeforeDelete(acceptorId, raiserId);
         delete(acceptorId, raiserId);
     }
@@ -114,11 +115,11 @@ public abstract class RelativeHelper {
 
     /**
      * 得到所有申请加好友的申请人，要得到他们的用户名
-     * 和账号（现在还没实现头像）
+     * 和主键id（现在还没实现头像）
      * @param userId 当前用户（接受者）的id
      * @return 返回一个RaiseRecordDTO列表
      */
-    public abstract List<AccountNamePair> fromIdGetWaitingRecords(Integer userId);
+    public abstract List<IdNamePair> fromIdGetWaitingRecords(Integer userId);
 
-    public abstract List<AccountNamePair> fromIdGetCurrentFriend(Integer userId);
+    public abstract List<IdNamePair> fromIdGetCurrentFriend(Integer userId);
 }

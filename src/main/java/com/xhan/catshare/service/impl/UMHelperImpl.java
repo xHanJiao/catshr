@@ -17,11 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.UnsupportedEncodingException;
 import java.util.Optional;
 
-import static com.xhan.catshare.controller.ControllerConstant.checkSubject;
-import static com.xhan.catshare.controller.ControllerConstant.checkText;
-import static com.xhan.catshare.controller.ControllerConstant.mailHost;
+import static com.xhan.catshare.controller.ControllerConstant.*;
 import static com.xhan.catshare.entity.dao.user.UserDO.buildUncheckedUser;
-import static com.xhan.catshare.exception.loregi.LoginException.NOACCOUNT;
+import static com.xhan.catshare.exception.loregi.LoginException.NOEMAIL;
 import static com.xhan.catshare.exception.loregi.RegisterException.*;
 
 
@@ -46,7 +44,7 @@ public class UMHelperImpl implements UserManagerHelper{
 
     @Override
     public boolean checkLoginDTO(LoginDTO dto) {
-        Optional<CredentialPair> pair = repo.getPairByAccount(dto.getAccount());
+        Optional<CredentialPair> pair = repo.getPairByEmail(dto.getEmail());
         return pair.map(p -> p.getPassword()
                 .equals(dto.getPassword()))
                 .orElse(false);
@@ -54,16 +52,16 @@ public class UMHelperImpl implements UserManagerHelper{
 
     @Override
     public void checkRegisterDTO(RegisterDTO dto) {
-        if (!dto.checkPwd())
+        if (dto.pwdNotEqual())
             throw new RegisterException(ERRORINPUT);
-        if (repo.findIdByAccount(dto.getAccount()).isPresent())
+        if (repo.findIdByEmail(dto.getEmail()).isPresent())
             throw new RegisterException(SAMEACCOUNT);
     }
 
     @Override
-    public Integer getUserDOId(String account) {
-        return repo.findIdByAccount(account)
-                .orElseThrow(()-> new LoginException(NOACCOUNT))
+    public Integer getUserDOId(String email) {
+        return repo.findIdByEmail(email)
+                .orElseThrow(() -> new LoginException(NOEMAIL))
                 .getId();
     }
 
@@ -83,15 +81,9 @@ public class UMHelperImpl implements UserManagerHelper{
     }
 
     @Override
-    public UserDO findUserByAccount(String account) {
-        return repo.findByAccount(account)
-                .orElseThrow(()->new RegisterException(NOACCOUNT));
-    }
-
-    @Override
-    public UserDO findUserById(Integer userId) {
-        return repo.findById(userId)
-                .orElseThrow(() -> new RegisterException(NOID));
+    public UserDO findUserByEmail(String email) {
+        return repo.findByEmail(email)
+                .orElseThrow(() -> new RegisterException(NOEMAIL));
     }
 
     @Override

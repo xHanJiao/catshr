@@ -1,6 +1,7 @@
 package com.xhan.catshare.controller;
 
-import com.xhan.catshare.entity.dto.AccountNamePair;
+import com.xhan.catshare.entity.dto.IdNamePair;
+import com.xhan.catshare.exception.records.IdNotFoundException;
 import com.xhan.catshare.exception.records.RecordException;
 import com.xhan.catshare.service.RelativeHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,27 +24,29 @@ public class RelativeController {
         this.relativeHelper = relativeHelper;
     }
 
-    @PostMapping(value = friendURL, params = "acceptorAccount")
+    @PostMapping(value = friendURL, params = "acceptorId")
     public ResponseEntity addFriend(
-            @RequestParam String acceptorAccount,
+            @RequestParam Integer acceptorId,
             @SessionAttribute Integer userId
     ){
-        relativeHelper.checkAndSaveRaiseRecord(acceptorAccount,userId);
+        if (acceptorId == null) throw new IdNotFoundException();
+
+        relativeHelper.checkAndSaveRaiseRecord(acceptorId, userId);
         return new ResponseEntity(valueOf(200));
     }
 
-    @PostMapping(value = friendURL, params = "accept")
+    @PostMapping(value = friendURL, params = "confirm")
     public ResponseEntity confirm(
-            @RequestParam String accept,
+            @RequestParam Integer confirm,
             @SessionAttribute Integer userId
     ){
-        relativeHelper.confirmRaiseRecord(accept, userId);
+        relativeHelper.confirmRaiseRecord(confirm, userId);
         return new ResponseEntity(valueOf(200));
     }
 
     @PostMapping(value = friendURL, params = "delete")
     public ResponseEntity deleteFriend(
-            @RequestParam String delete,
+            @RequestParam Integer delete,
             @SessionAttribute Integer userId
     ){
         relativeHelper.deleteFriend(delete, userId);
@@ -52,13 +55,13 @@ public class RelativeController {
 
     @ResponseBody
     @GetMapping(value = waitingRaiseURL)
-    public List<AccountNamePair> getRaiseRecord(@SessionAttribute Integer userId){
+    public List<IdNamePair> getRaiseRecord(@SessionAttribute Integer userId) {
         return relativeHelper.fromIdGetWaitingRecords(userId);
     }
 
     @ResponseBody
     @GetMapping(value = currentRecordURL)
-    public List<AccountNamePair> getCurrentRelations(@SessionAttribute Integer userId){
+    public List<IdNamePair> getCurrentRelations(@SessionAttribute Integer userId) {
         return relativeHelper.fromIdGetCurrentFriend(userId);
     }
 

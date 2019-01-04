@@ -33,7 +33,7 @@ public class LoginController {
      * 在"/"或者"/login"收到GET请求时，会返回登录页面的模板
      * @return 登录页面模板名，在ControllerConstant里写好
      */
-    @RequestMapping(value = {"/", loginURL}, method = GET)
+    @RequestMapping(value = {slash, loginURL}, method = GET)
     public String login(){
         return loginPage;
     }
@@ -44,14 +44,13 @@ public class LoginController {
      * 如果验证通过，会将登录用户id放入到
      * session中。
      */
-    @RequestMapping(value = {"/", loginURL}, method = POST)
+    @RequestMapping(value = {slash, loginURL}, method = POST)
     public String login(@Valid LoginDTO dto,
                         BindingResult result,
                         HttpSession session){
         if(result.hasErrors() || !helper.checkLoginDTO(dto)){
             throw new LoginException(ERRORINPUT);
-        }
-        else session.setAttribute("userId", helper.getUserDOId(dto.getAccount()));
+        } else session.setAttribute("userId", helper.getUserDOId(dto.getEmail()));
         return centerPage;
     }
 }

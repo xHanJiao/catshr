@@ -49,11 +49,11 @@ public class RegisterController {
         return checkPage;
     }
 
-    @RequestMapping(value = registerURL, method = RequestMethod.GET, params = {checkPage, "account"})
+    @RequestMapping(value = registerURL, method = RequestMethod.GET, params = {checkPage, "email"})
     public String checkRegister(@RequestParam String check,
-                                @RequestParam String account,
+                                @RequestParam String email,
                                 RedirectAttributes model){
-        UserDO user = helper.findUserByAccount(account);
+        UserDO user = helper.findUserByEmail(email);
         if (user.getChecked())
             throw new RegisterException("should not check twice");
 

@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
+
 import static javax.persistence.GenerationType.IDENTITY;
 
 /**
@@ -30,6 +31,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @DiscriminatorColumn(columnDefinition = "CHAR(2)")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class MetaMessage {
+    //fixme 它的DTO和它完全一样啊
+
     @Id @GeneratedValue(strategy = IDENTITY)
     @Column(name = "message_id", nullable = false)
     private Integer id;
@@ -40,18 +43,16 @@ public abstract class MetaMessage {
     @Column(nullable = false, name = "owner_id")
     private Integer ownerId;
 
+    @Column(nullable = false, name = "owner_name")
+    private String username;
+
     @Column(nullable = false, name = "send_time")
     @Temporal(value = TemporalType.TIMESTAMP)
     private Date sendTime;
-
-//    @Lob @Basic(fetch = FetchType.LAZY)
-//    @Column(name = "display_comments", columnDefinition = "TEXT", length = 65535)
-//    private String comments;
 
     public MetaMessage(String content, Integer ownerId) {
         this.content = content;
         this.ownerId = ownerId;
         sendTime = new Date();
-//        comments = "";
     }
 }

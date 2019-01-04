@@ -3,24 +3,24 @@ package com.xhan.catshare.exception.records;
 public class RecordException extends RuntimeException{
 
     public static final String WAITING = "please waiting for the accept";
-    public static final String NOACCOUNT = "no such account";
+    public static final String NOACCOUNT = "no such email";
 
-    public RecordException() {
+    RecordException() {
     }
 
-    public RecordException(String message) {
+    RecordException(String message) {
         super(message);
     }
 
-    public RecordException(String message, Throwable cause) {
+    RecordException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public RecordException(Throwable cause) {
+    RecordException(Throwable cause) {
         super(cause);
     }
 
-    public RecordException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    RecordException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

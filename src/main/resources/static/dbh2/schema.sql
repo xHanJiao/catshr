@@ -1,11 +1,10 @@
 CREATE TABLE `user` (
-  user_id INTEGER PRIMARY KEY AUTO_INCREMENT,
-  account VARCHAR(14) UNIQUE NOT NULL ,
-  username VARCHAR(7) NOT NULL ,
-  `password` VARCHAR(14) NOT NULL ,
-  email VARCHAR(50) NOT NULL ,
-  check_state BOOLEAN NOT NULL ,
-  register_date DATE NOT NULL DEFAULT current_timestamp()
+  `user_id`       INTEGER PRIMARY KEY         AUTO_INCREMENT,
+  `username`      VARCHAR(7) UNIQUE  NOT NULL,
+  `password`      VARCHAR(14)        NOT NULL,
+  `email`         VARCHAR(50) UNIQUE NOT NULL,
+  `check_state`   BOOLEAN            NOT NULL,
+  `register_date` DATE               NOT NULL DEFAULT current_timestamp()
 );
 CREATE TABLE `current_relation` (
   `relation_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
@@ -29,13 +28,14 @@ CREATE TABLE `raise_record`(
   `current_state` CHAR(4) NOT NULL DEFAULT 'wait'
 );
 CREATE TABLE `message`(
-  `message_id` INTEGER PRIMARY KEY AUTO_INCREMENT,
-  `owner_id` INTEGER NOT NULL ,
-  `send_time` DATETIME NOT NULL ,
-  `content` VARCHAR(140) NOT NULL ,
+  `message_id`       INTEGER PRIMARY KEY AUTO_INCREMENT,
+  `owner_id`         INTEGER           NOT NULL,
+  `owner_name`       VARCHAR(7) UNIQUE NOT NULL,
+  `send_time`        DATETIME          NOT NULL,
+  `content`          VARCHAR(140)      NOT NULL,
   `display_comments` TEXT ,
-  `DTYPE` CHAR(2) NOT NULL ,
-  `file_location` VARCHAR(255)
+  `DTYPE`            CHAR(2)           NOT NULL,
+  `file_location`    VARCHAR(255)
 );
 CREATE TABLE `comment` (
   `comment_id` INTEGER PRIMARY KEY AUTO_INCREMENT,

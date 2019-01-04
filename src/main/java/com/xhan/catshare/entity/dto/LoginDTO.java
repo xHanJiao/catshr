@@ -1,18 +1,17 @@
 package com.xhan.catshare.entity.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class LoginDTO {
-    private String account;
+    private String email;
     private String password;
 
-    public LoginDTO(String account, String password) {
-        this.account = account;
+    public LoginDTO(String email, String password) {
+        this.email = email;
         this.password = password;
     }
 
-    public LoginDTO() {
-
-    }
 }

@@ -1,6 +1,6 @@
 package com.xhan.catshare.entity.projection;
 
-public interface AccountUsername {
-    String getAccount();
+public interface IdUsername {
+    Integer getId();
     String getUsername();
 }

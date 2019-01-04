@@ -2,7 +2,7 @@ package com.xhan.catshare.exception.records;
 
 public class CannotBeSameException extends RecordException {
     public CannotBeSameException() {
-        super("the account cannot be same");
+        super("the email cannot be same");
     }
 
     public CannotBeSameException(String message) {

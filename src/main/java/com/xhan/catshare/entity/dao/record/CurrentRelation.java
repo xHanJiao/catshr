@@ -1,6 +1,6 @@
 package com.xhan.catshare.entity.dao.record;
 
-import com.xhan.catshare.entity.dto.AccountNamePair;
+import com.xhan.catshare.entity.dto.IdNamePair;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -23,32 +23,44 @@ public class CurrentRelation extends Pair {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "friend_account", nullable = false)
-    String account;
-
     @Column(name = "friend_username", nullable = false)
-    String username;
+    private String username;
 
-    public CurrentRelation(Integer raiserId,
+    CurrentRelation(Integer raiserId,
                            Integer acceptorId,
-                           String account,
                            String username) {
         this.setAcceptorId(acceptorId);
         this.setRaiserId(raiserId);
-        this.setAccount(account);
         this.setUsername(username);
     }
 
-    public static List<CurrentRelation> buildPair(
-            Integer aid, Integer bid, String aAcc,
-            String aName, String bAcc, String bName){
-        CurrentRelation cr1 = new CurrentRelation(aid, bid, bAcc, bName);
-        CurrentRelation cr2 = new CurrentRelation(bid, aid, aAcc, aName);
+    /**
+     * 这个函数是在添加好友的时候构造一对cr来表征关系
+     * 为了查询方便，在这里引入了反范式，在存储一对好
+     * 友关系时，正反存储了两遍
+     *
+     * @param aid   发起者的id
+     * @param bid   接受者的id
+     * @param aName 发起者的用户名
+     * @param bName 接受者的用户名
+     * @return 一对cr
+     */
+    public static List<CurrentRelation> buildCrPairForFriends(
+            Integer aid, Integer bid,
+            String aName, String bName) {
+        CurrentRelation cr1 = new CurrentRelation(aid, bid, bName);
+        CurrentRelation cr2 = new CurrentRelation(bid, aid, aName);
         return Arrays.asList(cr1, cr2);
     }
 
-    public static AccountNamePair buildPair(CurrentRelation cr){
-        return new AccountNamePair(cr.getAccount(), cr.getUsername());
+    /**
+     * 这个函数是构建Acceptor一方的pair
+     *
+     * @param cr 从这个参数中构建
+     * @return 接收方的id和username
+     */
+    public static IdNamePair buildPairForAcceptor(CurrentRelation cr) {
+        return new IdNamePair(cr.getAcceptorId(), cr.getUsername());
     }
 
     @Override
@@ -57,8 +69,6 @@ public class CurrentRelation extends Pair {
                 getRaiserId()+" "+
                 " acceptorId:"+
                 getAcceptorId() +" "+
-                "acceptorAccount:" +
-                getAccount()+ " "+
                 "acceptorName:" +
                 getUsername() +" "+
                 "}";

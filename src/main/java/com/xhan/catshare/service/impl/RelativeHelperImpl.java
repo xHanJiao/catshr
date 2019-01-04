@@ -4,24 +4,19 @@ import com.xhan.catshare.entity.dao.record.CurrentRelation;
 import com.xhan.catshare.entity.dao.record.DeleteRecord;
 import com.xhan.catshare.entity.dao.record.RaiseRecord;
 import com.xhan.catshare.entity.dao.user.UserDO;
-import com.xhan.catshare.entity.dto.AccountNamePair;
+import com.xhan.catshare.entity.dto.IdNamePair;
 import com.xhan.catshare.exception.records.*;
-import com.xhan.catshare.repository.user.UserRepository;
 import com.xhan.catshare.repository.record.CurrentRecordRepository;
 import com.xhan.catshare.repository.record.DeleteRecordRepository;
 import com.xhan.catshare.repository.record.RaiseRecordRepository;
+import com.xhan.catshare.repository.user.UserRepository;
 import com.xhan.catshare.service.RelativeHelper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-import static com.xhan.catshare.entity.dao.record.CurrentRelation.buildPair;
-import static com.xhan.catshare.entity.dao.record.RaiseRecord.ABORT;
-import static com.xhan.catshare.entity.dao.record.RaiseRecord.ACCEPT;
-import static com.xhan.catshare.entity.dao.record.RaiseRecord.WAIT;
+import static com.xhan.catshare.entity.dao.record.RaiseRecord.*;
 import static java.util.stream.Collectors.toList;
 
 @Service
@@ -52,6 +47,8 @@ public class RelativeHelperImpl extends RelativeHelper{
      */
     @Override
     protected void checkRaiseRecord(Integer acceptorId, Integer raiserId) {
+        isIdExist(acceptorId);
+
         if(acceptorId.equals(raiserId))
             throw new CannotBeSameException();
 
@@ -61,6 +58,11 @@ public class RelativeHelperImpl extends RelativeHelper{
         if(raiseRepository.findByRaiserIdAndAcceptorIdAndCurrentState(
                 raiserId, acceptorId, WAIT).isPresent())
             throw new AlreadyExistRecordException();
+    }
+
+    private void isIdExist(Integer acceptorId) {
+        if (acceptorId == null || !userRepository.existsById(acceptorId))
+            throw new IdNotFoundException();
     }
 
     /**
@@ -97,14 +99,14 @@ public class RelativeHelperImpl extends RelativeHelper{
 
     /**
      * 通过账号找到用户的id，应该保证返回id，如果没有就抛出异常
-     * @param account 账号
+     * @param email 账号
      * @return 数据库主键id
      */
     @Override
-    public Integer findUserIdByAccount(String account) {
+    public Integer findUserIdByEmail(String email) {
         return userRepository
-                .findIdByAccount(account)
-                .orElseThrow(AccountNotFoundException::new)
+                .findIdByEmail(email)
+                .orElseThrow(EmailNotFoundException::new)
                 .getId();
     }
 
@@ -122,6 +124,8 @@ public class RelativeHelperImpl extends RelativeHelper{
      */
     @Override
     protected void checkRaiseRecordBeforeConfirm(Integer acceptorId, Integer raiserId) {
+        isIdExist(acceptorId);
+
         if(acceptorId.equals(raiserId))
             throw new CannotBeSameException();
 
@@ -156,12 +160,12 @@ public class RelativeHelperImpl extends RelativeHelper{
         raiseRepository.save(record);
         UserDO aDO = userRepository
                 .findById(acceptorId)
-                .orElseThrow(AccountNotFoundException::new);
+                .orElseThrow(EmailNotFoundException::new);
         UserDO bDO = userRepository
                 .findById(raiserId)
-                .orElseThrow(AccountNotFoundException::new);
-        buildPair(aDO.getId(), bDO.getId(), aDO.getAccount(),
-                aDO.getUsername(), bDO.getAccount(), bDO.getUsername())
+                .orElseThrow(EmailNotFoundException::new);
+        CurrentRelation.buildCrPairForFriends(aDO.getId(), bDO.getId(),
+                aDO.getUsername(), bDO.getUsername())
                 .forEach(currRepository::save);
 
     }
@@ -184,11 +188,14 @@ public class RelativeHelperImpl extends RelativeHelper{
      * 在删除好友关系之前先对这个请求进行检验
      * 校验的内容有：
      * 1.是不是好友
-     * @param acceptorId 发起者的id，一定存在
+     * 2.要删除的那个id是不是存在
+     * @param acceptorId 发起者的id
      * @param raiserId 发起者的id，来自Session
      */
     @Override
     protected void checkBeforeDelete(Integer acceptorId, Integer raiserId) {
+        isIdExist(acceptorId);
+
         if (!currRepository
                 .findByRaiserIdAndAcceptorId(raiserId, acceptorId)
                 .isPresent())
@@ -196,7 +203,7 @@ public class RelativeHelperImpl extends RelativeHelper{
     }
 
     @Override
-    public List<AccountNamePair> fromIdGetWaitingRecords(Integer userId) {
+    public List<IdNamePair> fromIdGetWaitingRecords(Integer userId) {
         return raiseRepository
                  .findByAcceptorIdAndCurrentState(userId, RaiseRecord.WAIT)
                  .stream()
@@ -205,40 +212,21 @@ public class RelativeHelperImpl extends RelativeHelper{
     }
 
     @Override
-    public List<AccountNamePair> fromIdGetCurrentFriend(Integer userId) {
+    public List<IdNamePair> fromIdGetCurrentFriend(Integer userId) {
         return  currRepository.findByRaiserId(userId)
                 .stream()
-                .map(CurrentRelation::buildPair)
+                .map(CurrentRelation::buildPairForAcceptor)
                 .collect(toList());
     }
 
-    private AccountNamePair buildForAcceptor(CurrentRelation cr){
-        UserDO raiser = userRepository
-                .findById(cr.getRaiserId())
-                .orElseThrow(IdNotFoundException::new);
 
-        return new AccountNamePair(
-                raiser.getAccount(),
-                raiser.getUsername());
-    }
-
-    private AccountNamePair buildForRaiser(CurrentRelation cr){
-        UserDO raiser = userRepository
-                .findById(cr.getAcceptorId())
-                .orElseThrow(IdNotFoundException::new);
-
-        return new AccountNamePair(
-                raiser.getAccount(),
-                raiser.getUsername());
-    }
-
-    private AccountNamePair build(RaiseRecord record){
+    private IdNamePair build(RaiseRecord record) {
         UserDO raiser = userRepository
                 .findById(record.getRaiserId())
                 .orElseThrow(IdNotFoundException::new);
 
-        return new AccountNamePair(
-                raiser.getAccount(),
+        return new IdNamePair(
+                raiser.getId(),
                 raiser.getUsername());
     }
 }
